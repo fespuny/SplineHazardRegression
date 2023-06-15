@@ -12,3 +12,4 @@ Encoding: UTF-8
 LazyData: true
 URL: https://github.com/fespuny/SplineHazardRegression
 BugReports: https://github.com/fespuny/SplineHazardRegression/issues
+RoxygenNote: 7.2.3

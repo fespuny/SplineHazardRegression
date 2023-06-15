@@ -1,27 +1,31 @@
-#' Generates hazard and censoring distributions and respective survival functions
+#' Generate hazard and censoring distributions
+#'
+#' @description Generates hazard and censoring distributions and respective survival functions [IS IT OK TO IGNORE LATE ENTRY AT THIS STAGE?]
 #'
 #' @param fullname string [NOT USED]
 #' @param Hazard hazard function for outcome variable (REQUIRED)
 #'        'exp' for exponential, 'weib' for Weibull, 'pe' for piecewise-exponential, or 'spline' for B-Spline
-#' @param HParm tbl, parameter values for outcome variable
-#'     For 'exp', HParm contains a scalar
-#'     For 'pe', HParm(:, 1) is left limit, HParm(:, 2) is right limit,
-#'              HParm(:, 3) is hazard over the interval
-#'     For 'bspline', HParm(:, 1) lists knots, HParm(:, 2) lists spline coefficients.
+#' @param HParm matrix of parameter values for outcome variable
 #' @param Censor censoring hazard, '', 'exp', 'weib', 'pe' or 'bspline'
-#' @param Cparm tbl, parameter values for censoring variable
+#' @param Cparm matrix of parameter values for censoring variable
 #' @param Tmax scalar, maximum follow-up time, default 10
 #' @param Mesh scalar, discrete time-increment [NOT USED]
 #' @param SampleSize scalar, sample size
 #' @param B scalar, number of simulations used in bootstrapping
 #' @param OutputFormat string, 'double', 'tbl', or 'data_set' [NOT USED]
 #'
-#' @return t = array of times
-#'         basis = basis of b-spline cubic functions [WE NEED TO ADD ORDER/DEGREE AS PARAMETER IF WE WANT TO ALLOW DIFFERENT B-SPLINES]
-#'         h = simulated hazard distribution
-#'         hCensor = simulated censoring distribution
-#'         Sh = cumulative hazard survival function
-#'         SCensor = cumulative censoring survival funtion
+#' @details For 'exp', HParm contains a scalar;
+#'     For 'pe', HParm(:, 1) is left limit, HParm(:, 2) is right limit, and HParm(:, 3) is hazard over the interval
+#'     For 'bspline', HParm(:, 1) lists knots, HParm(:, 2) lists spline coefficients
+#'
+#' @return Returns a list of outputs (t, basis, h, hCensor, Sh, Scensor)
+#'
+#'     t = array of times
+#'     basis = basis of b-spline cubic functions [WE NEED TO ADD ORDER/DEGREE AS PARAMETER IF WE WANT TO ALLOW DIFFERENT B-SPLINES]
+#'     h = simulated hazard distribution
+#'     hCensor = simulated censoring distribution
+#'     Sh = cumulative hazard survival function
+#'     SCensor = cumulative censoring survival funtion
 #'
 #' @export
 #'
