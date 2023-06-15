@@ -5,39 +5,27 @@
 \title{Generate hazard and censoring distributions}
 \usage{
 etsim_inputs(
-  fullname = "",
   Hazard = "spline",
-  HParm,
+  HParam,
   Censor = "pe",
-  Cparm,
+  CParam,
   Tmax = 10,
-  Mesh = 7/365,
-  SampleSize = 101,
-  B = 10,
-  OutputFormat = "data_set"
+  SampleSize = 101
 )
 }
 \arguments{
-\item{fullname}{string [NOT USED]}
-
-\item{Hazard}{hazard function for outcome variable (REQUIRED)
+\item{Hazard}{- hazard function for outcome variable.
 'exp' for exponential, 'weib' for Weibull, 'pe' for piecewise-exponential, or 'spline' for B-Spline}
 
-\item{HParm}{matrix of parameter values for outcome variable}
+\item{HParam}{- matrix of parameter values for outcome variable \cr}
 
-\item{Censor}{censoring hazard, '', 'exp', 'weib', 'pe' or 'bspline'}
+\item{Censor}{- censoring hazard ('', 'exp', 'weib', 'pe' or 'bspline')}
 
-\item{Cparm}{matrix of parameter values for censoring variable}
+\item{CParam}{- matrix of parameter values for censoring variable}
 
-\item{Tmax}{scalar, maximum follow-up time, default 10}
+\item{Tmax}{- scalar, maximum follow-up time, default 10}
 
-\item{Mesh}{scalar, discrete time-increment [NOT USED]}
-
-\item{SampleSize}{scalar, sample size}
-
-\item{B}{scalar, number of simulations used in bootstrapping}
-
-\item{OutputFormat}{string, 'double', 'tbl', or 'data_set' [NOT USED]}
+\item{SampleSize}{- scalar, sample size}
 }
 \value{
 Returns a list of outputs (t, basis, h, hCensor, Sh, Scensor)
@@ -52,20 +40,15 @@ Returns a list of outputs (t, basis, h, hCensor, Sh, Scensor)
 \description{
 Generates hazard and censoring distributions and respective survival functions [IS IT OK TO IGNORE LATE ENTRY AT THIS STAGE?]
 }
-\details{
-For 'exp', HParm contains a scalar;
-    For 'pe', HParm(:, 1) is left limit, HParm(:, 2) is right limit, and HParm(:, 3) is hazard over the interval
-    For 'bspline', HParm(:, 1) lists knots, HParm(:, 2) lists spline coefficients
-}
 \examples{
-    #Generate input for a b-spline hazard simulation with piecewise exponential survival censoring
-    knots = c(0, 0, 0, 0, 1, 3, 6, 10, 10, 10, 10)
-    betac = 1 * c(0.05, 0.05, 0.05, 0.05, 0.40, 0.1, 0.05, NA, NA, NA, NA)
+#Generate input for a b-spline hazard simulation with piecewise exponential survival censoring
+    knots = c(0, 1, 3, 6, 10, NaN, NaN )
+    betac = 1 * c(0.05, 0.05, 0.05, 0.05, 0.40, 0.1, 0.05)
     HParm = data.frame(knots, betac) # 'A Simple B-Spline'
     cll = c(0, 5)
     cup = c(5, 10)
     cih = c(0.0125, 0.025)
     CParm = data.frame(cll, cup, cih) # 'Light Censoring'
-    INPUTS = etsim_inputs( HParm=HParm, Cparm=Cparm)
+    INPUTS = etsim_inputs( HParam=HParm, CParam=CParm )
 
 }

@@ -20,18 +20,20 @@ Returns a list of outputs (time, status, entry)
 Generates survival time and status fields using hazard and censoring as inputs
 }
 \details{
-Times to event are defined as t = min( t_h, t_C), where t_h is the time to hazard (distributed according to the input S_h) and t_C is the time to censoring (distributed according to the input S_censoring)
+Times to event are defined as \eqn{t = \min( t_h, t_C)},
+where \eqn{t_h} is the time to hazard (distributed according to the input \eqn{S_h})
+and \eqn{t_C} is the time to censoring (distributed according to the input \eqn{S_{censoring}})
 }
 \examples{
-    #First, we generate input for a b-spline hazard simulation with piecewise exponential survival censoring
-    knots = c(0, 0, 0, 0, 1, 3, 6, 10, 10, 10, 10)
-    betac = 1 * c(0.05, 0.05, 0.05, 0.05, 0.40, 0.1, 0.05, NA, NA, NA, NA)
+    #Generate input for a b-spline hazard and piecewise exponential survival censoring
+    knots = c(0, 1, 3, 6, 10, NA, NA)
+    betac = 1 * c(0.05, 0.05, 0.05, 0.05, 0.40, 0.1, 0.05)
     HParm = data.frame(knots, betac) # 'A Simple B-Spline'
     cll = c(0, 5)
     cup = c(5, 10)
     cih = c(0.0125, 0.025)
     CParm = data.frame(cll, cup, cih) # 'Light Censoring'
-    INPUTS = etsim_inputs( HParm=HParm, Cparm=Cparm)
+    INPUTS = etsim_inputs( HParam=HParm, CParam=CParm)
 
     #Then, we can generate the time-to event data
     SimDat = etsim(INPUTS)

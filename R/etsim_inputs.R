@@ -2,21 +2,13 @@
 #'
 #' @description Generates hazard and censoring distributions and respective survival functions [IS IT OK TO IGNORE LATE ENTRY AT THIS STAGE?]
 #'
-#' @param fullname string [NOT USED]
-#' @param Hazard hazard function for outcome variable (REQUIRED)
+#' @param Hazard - hazard function for outcome variable.
 #'        'exp' for exponential, 'weib' for Weibull, 'pe' for piecewise-exponential, or 'spline' for B-Spline
-#' @param HParm matrix of parameter values for outcome variable
-#' @param Censor censoring hazard, '', 'exp', 'weib', 'pe' or 'bspline'
-#' @param Cparm matrix of parameter values for censoring variable
-#' @param Tmax scalar, maximum follow-up time, default 10
-#' @param Mesh scalar, discrete time-increment [NOT USED]
-#' @param SampleSize scalar, sample size
-#' @param B scalar, number of simulations used in bootstrapping
-#' @param OutputFormat string, 'double', 'tbl', or 'data_set' [NOT USED]
-#'
-#' @details For 'exp', HParm contains a scalar;
-#'     For 'pe', HParm(:, 1) is left limit, HParm(:, 2) is right limit, and HParm(:, 3) is hazard over the interval
-#'     For 'bspline', HParm(:, 1) lists knots, HParm(:, 2) lists spline coefficients
+#' @param HParam - matrix of parameter values for outcome variable \cr
+#' @param Censor - censoring hazard ('', 'exp', 'weib', 'pe' or 'bspline')
+#' @param CParam - matrix of parameter values for censoring variable
+#' @param Tmax - scalar, maximum follow-up time, default 10
+#' @param SampleSize - scalar, sample size
 #'
 #' @return Returns a list of outputs (t, basis, h, hCensor, Sh, Scensor)
 #'
@@ -29,57 +21,31 @@
 #'
 #' @export
 #'
-#' @examples
-#'     #Generate input for a b-spline hazard simulation with piecewise exponential survival censoring
-#'     knots = c(0, 0, 0, 0, 1, 3, 6, 10, 10, 10, 10)
-#'     betac = 1 * c(0.05, 0.05, 0.05, 0.05, 0.40, 0.1, 0.05, NA, NA, NA, NA)
+#' @examples #Generate input for a b-spline hazard simulation with piecewise exponential survival censoring
+#'     knots = c(0, 1, 3, 6, 10, NaN, NaN )
+#'     betac = 1 * c(0.05, 0.05, 0.05, 0.05, 0.40, 0.1, 0.05)
 #'     HParm = data.frame(knots, betac) # 'A Simple B-Spline'
 #'     cll = c(0, 5)
 #'     cup = c(5, 10)
 #'     cih = c(0.0125, 0.025)
 #'     CParm = data.frame(cll, cup, cih) # 'Light Censoring'
-#'     INPUTS = etsim_inputs( HParm=HParm, Cparm=Cparm)
+#'     INPUTS = etsim_inputs( HParam=HParm, CParam=CParm )
 #'
-etsim_inputs = function( fullname="",
-                         Hazard="spline",
-                         HParm,
-                         Censor="pe",
-                         Cparm,
-                         Tmax=10,
-                         Mesh=7/365,
-                         SampleSize=101,
-                         B=10,
-                         OutputFormat="data_set"){
-  # fullname: string
-  # Hazard: hazard function for outcome variable (REQUIRED),
-  #  'exp' for exponential, 'weib' for Weibull, 'pe' for
-  #  piecewise-exponential, or 'spline' for B-Spline
-  # HParm: tbl, parameter values for outcome variable
-  # Censor: censoring hazard, '', 'exp', 'weib', 'pe' or 'bspline'
-  # CParm: tbl, parameter values for censoring variable
-  #  TMax: scalar, maximum follow-up time
-  #  Mesh: scalar, discrete time-increment
-  # SampleSize: scalar, sample size
-  #  B: scalar, number of simulations
-  # OutputFormat: string, 'double', 'tbl', or 'data_set'
-  #
-  # * For 'exp', HParm contains a scalar
-  # * For 'pe', HParm(:, 1) is left limit, HParm(:, 2) is right limit,
-  # HParm(:, 3) is hazard over the interval
-  # * For 'bspline', HParm(:, 1) lists knots, HParm(:, 2) lists spline coefficients.
-  #
-  # Example:
-  # I1 = etsim_inputs('Hazard', 'exp', 'HParm', tbl(0.1, 'Flat Hazard 10%/y'));
+etsim_inputs <- function( Hazard="spline", HParam, Censor="pe", CParam, Tmax=10, SampleSize=101 ){
 
-  knots = unique( as.numeric(HParm$knots) )
+  ##we ignore duplicated knots and assign boundary and interior knot variables
+  knots = unique( setdiff( as.numeric(HParam[,1]), c(NA, NaN) ) )
   Boundary.knots = c(min(knots),max(knots))
-  Interior.knots = knots[2:(length(knots)-1)]
+  Interior.knots = setdiff( knots, Boundary.knots )
 
-  betac = as.numeric(HParm$betac)[ 1:(length(knots)+2) ] #the tail of betac is ignored
+  betac = as.numeric(HParam[,2])
+  cll = as.numeric(CParam[,1])
+  cup = as.numeric(CParam[,2])
+  cih = as.numeric(CParam[,3])
 
   t = seq(from=Boundary.knots[1],to=Boundary.knots[2],length.out=SampleSize)
 
-  B = bSpline( x=t, knots=Interior.knots, Boundary.knots=Boundary.knots, degree=3, intercept=TRUE)
+  B = generate_bspline_basis( time=t, Interior.knots=Interior.knots, Boundary.knots=Boundary.knots, ORDER=4 )
 
   h = B %*% betac
 
@@ -90,9 +56,9 @@ etsim_inputs = function( fullname="",
 
   Sh = exp( - cumsum(h*DELTA) )
 
-  hCensor = rep(0, SampleSize)
-  for( i in 1:length(CParm$cll) ){
-    hCensor[ t > CParm$cll[i] & t<= CParm$cup[i] ] = CParm$cih[i]
+  hCensor = rep( 0, SampleSize )
+  for( i in 1:length(cll) ){
+    hCensor[ t > cll[i] & t<= cup[i] ] = cih[i]
   }
 
   Scensor = exp( - cumsum( hCensor*DELTA) )
