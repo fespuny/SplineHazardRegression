@@ -16,7 +16,8 @@
 #'
 #' @details For 'exp', HParm contains a scalar;
 #'     For 'pe', HParm(:, 1) is left limit, HParm(:, 2) is right limit, and HParm(:, 3) is hazard over the interval
-#'     For 'bspline', HParm(:, 1) lists knots, HParm(:, 2) lists spline coefficients
+#'     For 'bspline', HParm(:, 1) lists knots, HParm(:, 2) lists spline coefficients.
+#'     The number of rows of Hparm has to be equal to the number of degrees of freedom: number of interior knots plus order (=degree plus one) of the b-spline
 #'
 #' @return Returns a list of outputs (t, basis, h, hCensor, Sh, Scensor)
 #'
@@ -31,8 +32,8 @@
 #'
 #' @examples
 #'     #Generate input for a b-spline hazard simulation with piecewise exponential survival censoring
-#'     knots = c(0, 0, 0, 0, 1, 3, 6, 10, 10, 10, 10)
-#'     betac = 1 * c(0.05, 0.05, 0.05, 0.05, 0.40, 0.1, 0.05, NA, NA, NA, NA)
+#'     knots = c(0, 1, 3, 6, 10, NaN, NaN )
+#'     betac = 1 * c(0.05, 0.05, 0.05, 0.05, 0.40, 0.1, 0.05)
 #'     HParm = data.frame(knots, betac) # 'A Simple B-Spline'
 #'     cll = c(0, 5)
 #'     cup = c(5, 10)
@@ -71,8 +72,8 @@ etsim_inputs = function( fullname="",
   # Example:
   # I1 = etsim_inputs('Hazard', 'exp', 'HParm', tbl(0.1, 'Flat Hazard 10%/y'));
 
-  knots = unique( as.numeric(HParm$knots) )
-  Boundary.knots = c(min(knots),max(knots))
+  knots = unique( setdiff( as.numeric(HParm$knots), c(NA, NaN) ) )   ##we ignore duplicated knots
+  Boundary.knots = c(min(knots),max(knots))   ##boundary knots
   Interior.knots = knots[2:(length(knots)-1)]
 
   betac = as.numeric(HParm$betac)[ 1:(length(knots)+2) ] #the tail of betac is ignored
