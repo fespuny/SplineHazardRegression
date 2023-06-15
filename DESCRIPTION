@@ -1,11 +1,12 @@
 Package: SplineHazardRegression
 Type: Package
-Title: What the Package Does (Title Case)
+Title: R code for spline hazard regression in survival analysis
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Author: Ferran Espuny Pujol, Philip Rosenberg
+Maintainer: Ferran Espuny Pujol <f.pujol@ucl.ac.uk>
+Description: This code implements and further develops the methods from
+    Philip S. Rosenberg. "Hazard Function Estimation Using B-Splines"
+    In Biometrics, Vol. 51, No. 3 (Sep., 1995), pp. 874-887
+License: CC-BY-NC-SA
 Encoding: UTF-8
 LazyData: true
