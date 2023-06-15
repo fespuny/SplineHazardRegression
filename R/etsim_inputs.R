@@ -1,13 +1,13 @@
-#' Title
+#' Generates hazard and censoring distributions and respective survival functions
 #'
 #' @param fullname string [NOT USED]
 #' @param Hazard hazard function for outcome variable (REQUIRED)
 #'        'exp' for exponential, 'weib' for Weibull, 'pe' for piecewise-exponential, or 'spline' for B-Spline
 #' @param HParm tbl, parameter values for outcome variable
-#'   For 'exp', HParm contains a scalar
-#'  For 'pe', HParm(:, 1) is left limit, HParm(:, 2) is right limit,
+#'     For 'exp', HParm contains a scalar
+#'     For 'pe', HParm(:, 1) is left limit, HParm(:, 2) is right limit,
 #'              HParm(:, 3) is hazard over the interval
-#'  For 'bspline', HParm(:, 1) lists knots, HParm(:, 2) lists spline coefficients.
+#'     For 'bspline', HParm(:, 1) lists knots, HParm(:, 2) lists spline coefficients.
 #' @param Censor censoring hazard, '', 'exp', 'weib', 'pe' or 'bspline'
 #' @param Cparm tbl, parameter values for censoring variable
 #' @param Tmax scalar, maximum follow-up time, default 10
@@ -16,11 +16,26 @@
 #' @param B scalar, number of simulations used in bootstrapping
 #' @param OutputFormat string, 'double', 'tbl', or 'data_set' [NOT USED]
 #'
-#' @return
+#' @return t = array of times
+#'         basis = basis of b-spline cubic functions [WE NEED TO ADD ORDER/DEGREE AS PARAMETER IF WE WANT TO ALLOW DIFFERENT B-SPLINES]
+#'         h = simulated hazard distribution
+#'         hCensor = simulated censoring distribution
+#'         Sh = cumulative hazard survival function
+#'         SCensor = cumulative censoring survival funtion
 #'
 #' @export
 #'
 #' @examples
+#'     #Generate input for a b-spline hazard simulation with piecewise exponential survival censoring
+#'     knots = c(0, 0, 0, 0, 1, 3, 6, 10, 10, 10, 10)
+#'     betac = 1 * c(0.05, 0.05, 0.05, 0.05, 0.40, 0.1, 0.05, NA, NA, NA, NA)
+#'     HParm = data.frame(knots, betac) # 'A Simple B-Spline'
+#'     cll = c(0, 5)
+#'     cup = c(5, 10)
+#'     cih = c(0.0125, 0.025)
+#'     CParm = data.frame(cll, cup, cih) # 'Light Censoring'
+#'     INPUTS = etsim_inputs( HParm=HParm, Cparm=Cparm)
+#'
 etsim_inputs = function( fullname="",
                          Hazard="spline",
                          HParm,
