@@ -10,3 +10,5 @@ Description: This code implements and further develops the methods from
 License: CC-BY-NC-SA
 Encoding: UTF-8
 LazyData: true
+URL: https://github.com/fespuny/SplineHazardRegression
+BugReports: https://github.com/fespuny/SplineHazardRegression/issues
