@@ -5,7 +5,11 @@
 #' @param time - x coordinates for the B-spline functions
 #' @param Interior.knots - interior knots of the B-spline basis
 #' @param Boundary.knots - bounddary knots of the B-spline basis
+<<<<<<< HEAD
 #' @param ORDER - 1 step, 2 linear, 3 quadratic, 4 cubic
+=======
+#' @param degree - degree of the B-spline functions
+>>>>>>> 3697aae2f514a41f3e8d7b8c09fa6a002ad982c5
 #'
 #' @details The current bSpline() function from the splines2 package extends the bs() function in the splines package for B-spline basis by allowing piecewise constant (left-closed and right-open except on the right boundary) spline basis of degree zero.
 #'
@@ -15,6 +19,7 @@
 #' @importFrom graphics matplot
 #' @export
 #'
+<<<<<<< HEAD
 #' @examples # A basis of cubic B-splines with no interior points
 #' B = generate_bspline_basis( time = 0:10, Interior.knots=c(), Boundary.knots=c(0,10) )
 #' B
@@ -29,6 +34,20 @@ generate_bspline_basis <- function( time, Interior.knots, Boundary.knots, ORDER=
                Boundary.knots=Boundary.knots,
                degree=ORDER-1,
                intercept=TRUE)
+=======
+#' @examples # A basis of cubic B-splines with no interior points will have 4=3+1 functions (as many as the order of cubic B-splines)
+#' B = generate_bspline_basis( time = 0:10, Interior.knots=c(), Boundary.knots=c(0,10) )
+#' B
+#' # we can plot the basis using matplot
+#' matplot( 0:10, B, type="l")
+#'
+generate_bspline_basis <- function( time, Interior.knots, Boundary.knots, degree=3 ){
+
+  B = bSpline( x=time,
+               Interior.knots=Interior.knots,
+               Boundary.knots=Boundary.knots,
+               degree=degree, intercept=TRUE)
+>>>>>>> 3697aae2f514a41f3e8d7b8c09fa6a002ad982c5
 
   return( B )
 }
