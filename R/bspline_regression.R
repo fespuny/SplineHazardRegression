@@ -1,28 +1,27 @@
-#' Title
+#' Core function for B-spline hazard regression
 #'
-#' @param yd
-#' @param ORDER
-#' @param knots
-#' @param time
-#' @param Bootstrap
-#' @param alphalevel
+#' @param yd - matrix of time and status data; y is event time, d is for delta, the status indicator
+#' @param ORDER - 1 step, 2 linear, 3 quadratic, 4 cubic (i.e. ORDER=degree-1)
+#' @param knots - sequence of knot locations including endpoints (without multiplicity)
+#' @param time - vector of evaluation times
+#' @param Bootstrap - number of bootstrap samples (set to zero if none)
+#' @param alphalevel - alpha level for confidence intervals if bootrap is being used
 #'
 #' @return
 #' @importFrom matrixStats rowQuantiles
 #' @export
 #'
 #' @examples
-hspcore <- function(yd, ORDER, knots, time, Bootstrap, alphalevel){
+hspcore <- function(yd, ORDER, knots, time, Bootstrap=0, alphalevel=0.95){
   # % HSPCORE core function for hazard function estimation using B-Splines.
   # %
   # % [alpha1, t, h, S, m2loglik] = hspcore(yd, entry, order, knots, t, B, alphalevel)
-  #yd pneumonic y is event time, d is for delta, the status indicator
-  # yd    - matrix of time and status data
-  # order - 1 step, 2 linear, 3 quadratic, 4 cubic
-  # knots - sequence of knot locations including enpoint multiplicities
-  # t     - vector of evaluation times
-  # B     - number of bootstrap samples
-  # alpha - alpha level
+  #yd pneumonic
+  # yd    -
+  # order -
+  # knots -  multiplicities
+  # t
+  # B     alpha level
 
   ## Rescale the time axis to avoid numerical problems
   TMAX = max(yd[,1]);
