@@ -7,8 +7,8 @@
 #' @param Xh - matrix as calculated by bspline_regression_basis_functions()
 #' @param XH - matrix as calculated by bspline_regression_basis_functions()
 #'
-#' @return list(alpha1,hout,Sout,m2loglik) - alpha1 is the new solution;
-#' using alpha1, the function also calculates the hazard (hout), survival (Sout) and objective function and gradient (m2loglik) ;
+#' @return list(alpha1,h,S,m2loglik) - alpha1 is the new solution;
+#' using alpha1, the function also calculates the hazard (h), survival (S) and objective function and gradient (m2loglik) ;
 #' @importFrom stats optim nlminb
 #' @export
 #'

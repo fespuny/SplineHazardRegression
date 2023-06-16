@@ -20,8 +20,8 @@ hazl_ker(yd, alpha0, Wik, Zik, Xh, XH)
 \item{XH}{- matrix as calculated by bspline_regression_basis_functions()}
 }
 \value{
-list(alpha1,hout,Sout,m2loglik) - alpha1 is the new solution;
-using alpha1, the function also calculates the hazard (hout), survival (Sout) and objective function and gradient (m2loglik) ;
+list(alpha1,h,S,m2loglik) - alpha1 is the new solution;
+using alpha1, the function also calculates the hazard (h), survival (S) and objective function and gradient (m2loglik) ;
 }
 \description{
 Optimisation of the objective function

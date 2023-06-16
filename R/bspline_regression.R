@@ -8,11 +8,11 @@
 #' @param knots - optional sequence of knot locations including endpoints (without multiplicity)
 #' @param time - vector of evaluation times
 #' @param Bootstrap - number of bootstrap samples (set to zero if none)
-#' @param alphalevel - alpha level for confidence intervals if bootrap is being used
+#' @param alphalevel - alpha level for confidence intervals if bootstrap is being used
 #'
 #' @return list(alpha1,t,h,m2loglik,hb) - the optimal coefficients alpha1, the time variable, the optimal hazard, the objective function value and gradient, and the bootstrap hazards if any
 #' @importFrom matrixStats rowQuantiles
-#' @importFrom pracma zeros
+#' @importFrom pracma zeros ceil
 #' @importFrom stats runif
 #'
 #' @details See \doi{<doi.org/10.2307/2532989>} the original paper by Philip S. Rosenberg.
@@ -118,13 +118,15 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
     ## SOLUTION GIVEN THE KNOTS
     alpha1= maxL$alpha1
     h     = maxL$h
+    S     = maxL$S
     m2loglik = maxL$m2loglik #this contains
 
   ## BOOTSTRAP NEEDED?
-  if( Bootrsrap > 0 ){
+  if( Bootstrap > 0 ){
   # Bootstrap - keep track of h(t), S(t), and alpha
   # We are just sampling with replacement
   # Use the MLE as the starting value
+  print( "Variance estimation using bootstrap" )
 
     hb = zeros(length(t),  Bootstrap);
     Sb = zeros(length(t), Bootstrap);
@@ -133,16 +135,17 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
 
     for( i in 1:Bootstrap ){
 
+      # i_b = unique( ceil( runif( n=length(t), min=0, max=nrow(yd) ) ) )
       i_b = ceil( runif( n=length(t), min=0, max=nrow(yd) ) )
       yd0 = yd[i_b,]
       Wik0 = Wik[i_b, ]
       Zik0 = Zik[i_b, ]
-      maxLbi = hazl_ker( yd0, alpha1, Wik0, Zik0, Xh, XH );
+      maxLbi = hazl_ker( yd0, alpha0, Wik0, Zik0, Xh, XH );
 
       alphab[i,] = maxLbi$alpha1
       hb[,i] = maxLbi$h
       Sb[,i] = maxLbi$S
-      m2loglikb[i] = maxLbi$m2loglik
+      m2loglikb[i] = maxLbi$m2loglik[1]
       rm( maxLbi )
     }
     gc()
