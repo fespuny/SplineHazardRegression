@@ -4,7 +4,7 @@
 #'
 #' @param time - x coordinates for the B-spline functions
 #' @param Interior.knots - interior knots of the B-spline basis
-#' @param Boundary.knots - bounddary knots of the B-spline basis
+#' @param Boundary.knots - boundary knots of the B-spline basis
 #' @param ORDER - 1 step, 2 linear, 3 quadratic, 4 cubic
 #'
 #' @details The current bSpline() function from the splines2 package extends the bs() function in the splines package for B-spline basis by allowing piecewise constant (left-closed and right-open except on the right boundary) spline basis of degree zero.
@@ -29,6 +29,5 @@ generate_bspline_basis <- function( time, Interior.knots, Boundary.knots, ORDER=
                Boundary.knots=Boundary.knots,
                degree=ORDER-1,
                intercept=TRUE)
-
   return( B )
 }

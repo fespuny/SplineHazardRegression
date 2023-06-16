@@ -4,7 +4,11 @@
 \alias{generate_bspline_basis}
 \title{Generate B-Spline basis}
 \usage{
+<<<<<<< HEAD
 generate_bspline_basis(time, Interior.knots, Boundary.knots, ORDER = 4)
+=======
+generate_bspline_basis(time, Interior.knots, Boundary.knots, degree = 3)
+>>>>>>> 3697aae2f514a41f3e8d7b8c09fa6a002ad982c5
 }
 \arguments{
 \item{time}{- x coordinates for the B-spline functions}
@@ -13,7 +17,11 @@ generate_bspline_basis(time, Interior.knots, Boundary.knots, ORDER = 4)
 
 \item{Boundary.knots}{- bounddary knots of the B-spline basis}
 
+<<<<<<< HEAD
 \item{ORDER}{- 1 step, 2 linear, 3 quadratic, 4 cubic}
+=======
+\item{degree}{- degree of the B-spline functions}
+>>>>>>> 3697aae2f514a41f3e8d7b8c09fa6a002ad982c5
 }
 \value{
 B - matrix of basis of b-pline functions of the specified degree, evaluated at the "time" points
@@ -26,10 +34,16 @@ Wraper function to a B-spline basis calculation function in R (currently from pa
 The current bSpline() function from the splines2 package extends the bs() function in the splines package for B-spline basis by allowing piecewise constant (left-closed and right-open except on the right boundary) spline basis of degree zero.
 }
 \examples{
+<<<<<<< HEAD
 # A basis of cubic B-splines with no interior points
 B = generate_bspline_basis( time = 0:10, Interior.knots=c(), Boundary.knots=c(0,10) )
 B
 # Note that B has 4=3+1 functions (as many as the order of cubic B-splines)
+=======
+# A basis of cubic B-splines with no interior points will have 4=3+1 functions (as many as the order of cubic B-splines)
+B = generate_bspline_basis( time = 0:10, Interior.knots=c(), Boundary.knots=c(0,10) )
+B
+>>>>>>> 3697aae2f514a41f3e8d7b8c09fa6a002ad982c5
 # we can plot the basis using matplot
 matplot( 0:10, B, type="l")
 
