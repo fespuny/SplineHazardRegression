@@ -18,35 +18,49 @@
 #' @export
 #'
 #' @examples
-hspcore <- function(yd, ORDER, knots, time, Bootstrap=0, alphalevel=0.95){
+hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
 
   knots = unique( as.numeric(knots) )
 
   ## Rescale the time axis to avoid numerical problems
   TMAX = max(yd[,1]);
   yd[,1] = yd[,1]/TMAX;
-  entry = entry/TMAX;
   knots = knots/TMAX;
-  t = t/TMAX;
+  t = time/TMAX;
 
-  ## Calculate all needed auxiliary matrices and functions
-  basis_functions = bspline_regression_basis_functions(yd, entry, ORDER, knots, t )
-  Wik = basis_functions$Wik
-  Zik = basis_functions$Zik
-  XH  = basis_functions$XH
-  Xh  = basis_functions$Xh
+  if( !(ORDER %in% 1:4) ){
+    print( "Error: ORDER needs to take a value between 1 and 4; see help('hspcore')" )
+    return( -1 )
+  }
 
-  ## Initial guess for the coefficients
-  alpha0 = (sum(yd[,2])/sum(yd[,1]))*ones(1, size(Wik,2))
+  ## USER-PROVIDED KNOTS
+  if( length(knots)>=2 ){
 
-  ## Maximize the likelihood function by minimising ( - 2 log-Likekihood )
-  maxL = hazl_ker(yd, alpha0, Wik, Zik, Xh, XH )
+    ## Calculate all needed auxiliary matrices and functions
+    basis_functions = bspline_regression_basis_functions(yd, ORDER, knots, t )
 
-  alpha1= maxL$alpha1
-  h     = maxL$h
-  S     = maxL$S
-  m2loglik = maxL$m2loglik
-  m2loglik_nosmooth = srllikb_fun(alpha1, yd, Wik, Zik)
+    Wik = basis_functions$Wik
+    Zik = basis_functions$Zik
+    Xh  = basis_functions$Xh
+    XH  = basis_functions$XH
+
+    ## Initial guess for the coefficients
+    alpha0 = (sum(yd[,2])/sum(yd[,1]))*ones(1, size(Wik,2))
+
+    ## Maximize the likelihood function by minimising the objective = -2*logLikekihood
+    maxL = hazl_ker(yd, alpha0, Wik, Zik, Xh, XH )
+
+    ## SOLUTION GIVEN THE KNOTS
+    alpha1= maxL$alpha1
+    h     = maxL$h
+    S     = maxL$S
+    m2loglik = maxL$m2loglik #this contains
+
+  }
+  ## OTHERWISE, AUTOMATIC SEARCH FOR THE NUMBER OF KNOTS USING AIC corrected
+  else {
+
+  }
 
 
   ####
