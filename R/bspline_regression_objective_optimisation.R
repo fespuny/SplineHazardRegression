@@ -6,7 +6,6 @@
 #' @param Zik - matrix as calculated by bspline_regression_basis_functions()
 #' @param Xh - matrix as calculated by bspline_regression_basis_functions()
 #' @param XH - matrix as calculated by bspline_regression_basis_functions()
-#' @param smooth
 #'
 #' @return list(alpha1,hout,Sout,m2loglik) - alpha1 is the new solution;
 #' using alpha1, the function also calculates the hazard (hout), survival (Sout) and objective function and gradient (m2loglik) ;
@@ -14,7 +13,7 @@
 #' @importFrom stats optim
 #' @export
 #'
-hazl_ker = function(yd, alpha0, Wik, Zik, Xh, XH, smooth=FALSE){
+hazl_ker = function(yd, alpha0, Wik, Zik, Xh, XH ){
   # wrapper function for fmincon's access to srllikb
   # MATLAB hoptions = optimset('TolFun', 1E-6, 'TolX', 1E-6, 'Display', 'none', ...
   #     'algorithm', 'interior-point', 'GradObj', 'on');

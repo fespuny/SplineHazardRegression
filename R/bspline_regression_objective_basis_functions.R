@@ -8,7 +8,7 @@
 #' @param knots - sequence of knot locations
 #' @param t - vector of evaluation times
 #'
-#' @return list(Wik, Zik, XH, Xh ) - see details for definitions
+#' @return list(Wik, Zik, Xh, XH ) - see details for definitions
 #'
 #' @details When fitting a B-spline function \eqn{h(\alpha)(t) := B(t) \alpha} to time-to-event-data,
 #' where \eqn{B(t)} is a basis of B-splines and \eqn{\alpha} are the coefficients to be estimated,
@@ -75,7 +75,7 @@ bspline_regression_basis_functions <- function(yd, entry, ORDER, knots, t ){
     return( list(
       Wik = Wik,
       Zik = Zik,
-      XH = XH,
-      Xh = Xh
+      Xh = Xh,
+      XH = XH
     ))
   }

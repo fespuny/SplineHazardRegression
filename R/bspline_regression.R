@@ -20,6 +20,8 @@
 #' @examples
 hspcore <- function(yd, ORDER, knots, time, Bootstrap=0, alphalevel=0.95){
 
+  knots = unique( as.numeric(knots) )
+
   ## Rescale the time axis to avoid numerical problems
   TMAX = max(yd[,1]);
   yd[,1] = yd[,1]/TMAX;
@@ -27,14 +29,19 @@ hspcore <- function(yd, ORDER, knots, time, Bootstrap=0, alphalevel=0.95){
   knots = knots/TMAX;
   t = t/TMAX;
 
+  ## Calculate all needed auxiliary matrices and functions
   basis_functions = bspline_regression_basis_functions(yd, entry, ORDER, knots, t )
+  Wik = basis_functions$Wik
+  Zik = basis_functions$Zik
+  XH  = basis_functions$XH
+  Xh  = basis_functions$Xh
 
-  # An initial guess for the coefficients
-  #MATLAB alpha0 = (sum(yd[,2])/sum(yd[,1]-entry))*ones(1, size(Wik,2));
+  ## Initial guess for the coefficients
   alpha0 = (sum(yd[,2])/sum(yd[,1]))*ones(1, size(Wik,2))
 
-  # Maximize the likelihood function
-  maxL = hazl_ker(yd, alpha0, Wik, Zik, Eik, Xh, XH, smooth);
+  ## Maximize the likelihood function by minimising ( - 2 log-Likekihood )
+  maxL = hazl_ker(yd, alpha0, Wik, Zik, Xh, XH )
+
   alpha1= maxL$alpha1
   h     = maxL$h
   S     = maxL$S
