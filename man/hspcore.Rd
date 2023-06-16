@@ -27,5 +27,5 @@ This function allows to perform B-spline hazard regression given right-censored 
              If no b-spline knots and/or b-spline order are provided, automatic selection of those parameters is performed (see Details).
 }
 \details{
-See the \href{https://doi.org/10.2307/2532989}{Original paper by Philip S. Rosenberg}.
+See \doi{<doi.org/10.2307/2532989>} the original paper by Philip S. Rosenberg.
 }

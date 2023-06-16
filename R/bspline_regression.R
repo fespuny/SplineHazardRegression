@@ -12,8 +12,9 @@
 #'
 #' @return list(alpha1,t,h,m2loglik,hb) - the optimal coefficients alpha1, the time variable, the optimal hazard, the objective function value and gradient, and the bootstrap hazards if any
 #' @importFrom matrixStats rowQuantiles
+#' @importFrom pracma size
 #'
-#' @details See the \href{https://doi.org/10.2307/2532989}{Original paper by Philip S. Rosenberg}.
+#' @details See \doi{<doi.org/10.2307/2532989>} the original paper by Philip S. Rosenberg.
 #'
 #' @export
 #'
@@ -72,7 +73,7 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
       S     = maxL$S
       m2loglik = maxL$m2loglik #this contains
 
-      AICc = m2loglik[1] + 2 * DOF + 2 * DOF * (DOF+1) / (n-DOF-1)
+      AICc = m2loglik[1] + 2 * DOF + 2 * DOF * (DOF+1) / (nrow(yd)-DOF-1)
 
       print( paste0( "K= ", K, " AICc=", AICc, " knots= ", paste0( round( knots, 1), collapse = " "  ) ) )
 
@@ -161,7 +162,7 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
   h = h/TMAX;
   alpha1 = alpha1/TMAX;
 
-  if( B > 0 ){
+  if( Bootstrap > 0 ){
 
     hb = hb/TMAX;
     alphab = alphab/TMAX;
