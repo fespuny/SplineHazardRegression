@@ -14,7 +14,6 @@
 #' @importFrom pracma zeros
 #' @export
 #'
-#' @examples
 hazl_ker = function(yd, alpha0, Wik, Zik, Eik, Xh, XH, smooth=FALSE){
   # wrapper function for fmincon's access to srllikb
   # %
