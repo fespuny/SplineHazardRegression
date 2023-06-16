@@ -4,7 +4,7 @@
 \alias{hazl_ker}
 \title{Optimisation of the objective function}
 \usage{
-hazl_ker(yd, alpha0, Wik, Zik, Eik, Xh, XH, smooth = FALSE)
+hazl_ker(yd, alpha0, Wik, Zik, Xh, XH)
 }
 \arguments{
 \item{yd}{- data}
@@ -15,13 +15,9 @@ hazl_ker(yd, alpha0, Wik, Zik, Eik, Xh, XH, smooth = FALSE)
 
 \item{Zik}{- matrix as calculated by bspline_regression_basis_functions()}
 
-\item{Eik}{- matrix as calculated by bspline_regression_basis_functions()}
-
 \item{Xh}{- matrix as calculated by bspline_regression_basis_functions()}
 
 \item{XH}{- matrix as calculated by bspline_regression_basis_functions()}
-
-\item{smooth}{}
 }
 \value{
 list(alpha1,hout,Sout,m2loglik) - alpha1 is the new solution;

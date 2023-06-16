@@ -10,14 +10,13 @@
 #' @param Bootstrap - number of bootstrap samples (set to zero if none)
 #' @param alphalevel - alpha level for confidence intervals if bootrap is being used
 #'
-#' @return
+#' @return list(alpha1,t,h,m2loglik,hb) - the optimal coefficients alpha1, the time variable, the optimal hazard, the objective function value and gradient, and the bootstrap hazards if any
 #' @importFrom matrixStats rowQuantiles
 #'
 #' @details See the \href{https://doi.org/10.2307/2532989}{Original paper by Philip S. Rosenberg}.
 #'
 #' @export
 #'
-#' @examples
 hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
 
   knots = unique( as.numeric(knots) )

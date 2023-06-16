@@ -4,12 +4,10 @@
 \alias{bspline_regression_basis_functions}
 \title{Generate the basis functions needed for fitting the hazard B-spline model}
 \usage{
-bspline_regression_basis_functions(yd, entry, ORDER, knots, t)
+bspline_regression_basis_functions(yd, ORDER, knots, t)
 }
 \arguments{
 \item{yd}{- matrix of time-to-event data; pneumonic y is event time, d is for delta, the status indicator}
-
-\item{entry}{- late entry / left truncation times}
 
 \item{ORDER}{- 1 step, 2 linear, 3 quadratic, 4 cubic}
 
@@ -18,7 +16,7 @@ bspline_regression_basis_functions(yd, entry, ORDER, knots, t)
 \item{t}{- vector of evaluation times}
 }
 \value{
-list(Wik, Zik, Eik, XH, Xh ) - see details for definitions
+list(Wik, Zik, Xh, XH ) - see details for definitions
 }
 \description{
 This function calculates all matrices needed for the estimation of a hazard function with censored time-to-event data using B-splines
