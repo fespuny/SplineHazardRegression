@@ -33,8 +33,63 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
     return( -1 )
   }
 
-  ## USER-PROVIDED KNOTS
-  if( length(knots)>=2 ){
+  ## AUTOMATIC SEARCH FOR KNOTS NEEDED?
+  if( length(knots)<2 ) {
+    print( "Automatic search for K the number of interior knots of the B-spline hazard function" )
+
+    Exterior.knots = c( min(t), max(t) )
+    eventtimes = sort( yd[ yd[,2]==1, 1] )
+    nevents = length( eventtimes )
+
+    bestAICc = NULL
+    bestK    = NULL
+    for( K in 1:8 ){
+
+      DOF = K+ORDER
+
+      ## interior knots using K percentiles for the event times
+      Interior.knots = eventtimes[ round( seq( nevents/(K+1), nevents/(K+1) * K , nevents/(K+1) ) ) ]
+
+      ## candidate knots
+      knots = c( min(eventtimes), Interior.knots, max(eventtimes) )
+
+      ## Calculate all needed auxiliary matrices and functions
+      basis_functions = bspline_regression_basis_functions(yd, ORDER, knots, t )
+
+      Wik = basis_functions$Wik
+      Zik = basis_functions$Zik
+      Xh  = basis_functions$Xh
+      XH  = basis_functions$XH
+
+      ## Initial guess for the coefficients
+      alpha0 = (sum(yd[,2])/sum(yd[,1]))*ones(1, size(Wik,2))
+
+      ## Maximize the likelihood function by minimising the objective = -2*logLikekihood
+      maxL = hazl_ker(yd, alpha0, Wik, Zik, Xh, XH )
+
+      ## SOLUTION GIVEN THE KNOTS
+      alpha1= maxL$alpha1
+      h     = maxL$h
+      S     = maxL$S
+      m2loglik = maxL$m2loglik #this contains
+
+      AICc = m2loglik[1] + 2 * DOF + 2 * DOF * (DOF+1) / (n-DOF-1)
+
+      print( paste0( "K= ", K, " AICc=", AICc, " knots= ", paste0( round( knots, 1), collapse = " "  ) ) )
+
+      if( K==1 | bestAICc > AICc ){
+        bestAICc = AICc
+        bestK    = K
+      }
+    }
+    ## we use the best K found:
+    print( paste0( "We use ", bestK , " interior B-spline knots"))
+
+    Interior.knots = eventtimes[ round( seq( nevents/(bestK+1), nevents/(bestK+1) * bestK , nevents/(bestK+1) ) ) ]
+    knots = c( min(eventtimes), Interior.knots, max(eventtimes) )
+  }
+
+  ## REGRESSION WITH KNOWN KNOTS
 
     ## Calculate all needed auxiliary matrices and functions
     basis_functions = bspline_regression_basis_functions(yd, ORDER, knots, t )
@@ -53,66 +108,55 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
     ## SOLUTION GIVEN THE KNOTS
     alpha1= maxL$alpha1
     h     = maxL$h
-    S     = maxL$S
     m2loglik = maxL$m2loglik #this contains
 
-  }
-  ## OTHERWISE, AUTOMATIC SEARCH FOR THE NUMBER OF KNOTS USING AIC corrected
-  else {
-
-  }
-
-
-  ####
-  # Bootstrap - keep track of h(t), S(t), and alpha
-  # We are just sampling with replacement
-  # Use the MLE as the starting value
-  ####
-  if( B>0 ){
-
-    hb = zeros(length(t),  B);
-    Sb = zeros(length(t), B);
-    alphab = zeros(B, length(alpha1));
-    m2loglikb = zeros(B, 1);
-
-    for( i in 1:B ){
-
-      iteration = (1 - i) %/% 5 #5-fold cross validation for each iteration
-
-      if( (i-1)%%5 ==0 ) shuffle = sample( x=1:size(yd,1) ) # index permutation
-
-      i_b = shuffle[ which( (0:(size(yd, 1)-1))%%5 != (i-1)%%5) ] #only 80% of the indices are selected
-
-      # i_b = ceil(size(yd, 1)*rand(size(yd, 1), 1));
-      yd0 = yd[i_b,]
-      Wik0 = Wik[i_b, ]
-      Zik0 = Zik[i_b, ]
-      # Eik0 = Eik[i_b, ]
-      Eik0 = NULL
-      maxLbi = hazl_ker( yd0, alpha0, Wik0, Zik0, Eik0, Xh, XH, smooth );
-
-      alphab[i,] = maxLbi$alpha1
-      hb[,i] = maxLbi$h
-      Sb[,i] = maxLbi$S
-      m2loglikb[i] = maxLbi$m2loglik
-      rm( maxLbi )
-    }
-    gc()
-
-    ###
-    # Package the results / pointwise confidence limits
-    # We are saving trios of columns / MLE, lower limit, upper limit
-    ###
-
-    # library( matrixStats )
-    h = cbind( h, rowQuantiles( hb, probs=c(alphalevel/2, 1-alphalevel/2), na.rm = T ) )
-    S = cbind( S, rowQuantiles( Sb, probs=c(alphalevel/2, 1-alphalevel/2), na.rm=T ) )
-
-  } else { # no bootstrapping
+  # ## BOOTSTRAP NEEDED?
+  # if( Bootrsrap > 0 ){
+  # # Bootstrap - keep track of h(t), S(t), and alpha
+  # # We are just sampling with replacement
+  # # Use the MLE as the starting value?
+  #
+  #   hb = zeros(length(t),  B);
+  #   Sb = zeros(length(t), B);
+  #   alphab = zeros(B, length(alpha1));
+  #   m2loglikb = zeros(B, 1);
+  #
+  #   for( i in 1:B ){
+  #
+  #     iteration = (1 - i) %/% 5 #5-fold cross validation for each iteration
+  #
+  #     if( (i-1)%%5 ==0 ) shuffle = sample( x=1:size(yd,1) ) # index permutation
+  #
+  #     i_b = shuffle[ which( (0:(size(yd, 1)-1))%%5 != (i-1)%%5) ] #only 80% of the indices are selected
+  #
+  #     # i_b = ceil(size(yd, 1)*rand(size(yd, 1), 1));
+  #     yd0 = yd[i_b,]
+  #     Wik0 = Wik[i_b, ]
+  #     Zik0 = Zik[i_b, ]
+  #     # Eik0 = Eik[i_b, ]
+  #     Eik0 = NULL
+  #     maxLbi = hazl_ker( yd0, alpha0, Wik0, Zik0, Eik0, Xh, XH, smooth );
+  #
+  #     alphab[i,] = maxLbi$alpha1
+  #     hb[,i] = maxLbi$h
+  #     Sb[,i] = maxLbi$S
+  #     m2loglikb[i] = maxLbi$m2loglik
+  #     rm( maxLbi )
+  #   }
+  #   gc()
+  #
+  #   ###
+  #   # Package the results / pointwise confidence limits
+  #   # We are saving trios of columns / MLE, lower limit, upper limit
+  #   ###
+  #
+  #   # library( matrixStats )
+  #   h = cbind( h, rowQuantiles( hb, probs=c(alphalevel/2, 1-alphalevel/2), na.rm = T ) )
+  #
+  # } else { # no bootstrapping
     alphab = c();
     hb = c();
-    Sb = c();
-  }
+  # }
 
   # rescale the hazard values and coefficients
   h = h/TMAX;
@@ -127,9 +171,7 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
   return( list(alpha1=alpha1,
                t=t*TMAX,
                h=h,
-               S=S,
                m2loglik=m2loglik,
-               m2loglik_nosmooth=m2loglik_nosmooth,
                hb=hb) )
 
 }
