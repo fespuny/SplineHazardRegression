@@ -8,9 +8,8 @@
 #' where \eqn{t_h} is the time to hazard (distributed according to the input \eqn{S_h})
 #' and \eqn{t_C} is the time to censoring (distributed according to the input \eqn{S_{censoring}})
 #'
-#' @return Returns a list of outputs (time, status, entry)
-#'
-#'     t = array of times to event
+#' @return Returns a list of outputs (time, status)
+#'     time = array of times to event
 #'     status = 0 if alive at time t, 1 otherwise
 #' @importFrom stats runif
 #' @importFrom pracma interp1
