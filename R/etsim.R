@@ -61,8 +61,7 @@ etsim <- function( INPUTS ){
   status[ !is.na(timeCensor) & !is.na(time) & timeCensor < time ] = 0 #status=0 means censoring
   status[ is.na(time) | (time > max(INPUTS$t)) ] = 0
 
-  return( data.frame(
-    time=y0,
-    status=status
-  ))
+  output <- data.frame( time=y0, status=status )
+
+  return( output )
 }

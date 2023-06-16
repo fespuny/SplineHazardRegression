@@ -44,7 +44,9 @@ devtools::install_github("fespuny/SplineHazardRegression")
 
 This is a basic example which shows you how to simulate time-to-event data and fit a hazard function, deriving then cumulative hazard and survival estimates.
 
-```{r example}
+### Data Simulation
+
+```{r simulation}
 library(SplineHazardRegression)
 ## simulation parameters
    knots = c(0, 1, 3, 6, 10, NA, NA)
@@ -55,19 +57,23 @@ library(SplineHazardRegression)
    cih = c(0.0125, 0.025)
    CParm = data.frame(cll, cup, cih) # 'Light Censoring'
 ## calculate simulation true hazard and censoring distributions
-   INPUTS = etsim_inputs( HParam=HParm, CParam=CParm, SampleSize = 101 )
+   INPUTS = etsim_inputs( HParam=HParm, CParam=CParm, SampleSize = 201 )
 ## simulate time-to-event data using true distribution
    SimDat = etsim(INPUTS)
-## Fit a cubic B-spline regression model estimating the needed knots
-   timeout = seq( 0, 10, length.out = 101 )
-   Result = hspcore(yd=SimDat, ORDER=4, knots=c(0,5,10), time=timeout )
+## histogram of the fully observed hazard data (gray) and censored observations (light blue)
+hist( SimDat$time[ which(SimDat$status==1)], main="", xlab="t", breaks="Freedman-Diaconis", xlim=c(0,10) )
+hist( SimDat$time[ which(SimDat$status==0)], main="", xlab="t", breaks="Freedman-Diaconis", xlim=c(0,10),add=TRUE, col=rgb(173,216,230,max=255,alpha=100) )
 
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
+### Hazard regression
 
-```{r cars}
-summary(cars)
+```{r regression}
+## Fit a cubic B-spline regression model using the true knots
+   yd0= read.csv("C:/local/CORU/Survival Hazard and KM/Philip Rosenberg papers and code/matlab v1 PR/Dataset1.csv", header = F, col.names = c("time","status") )
+   SimDat = yd0
+   timeout = seq( 0, 10, length.out = 101 )
+   Result = hspcore(yd=SimDat, ORDER=4, knots=c(0,1,3,6,10), time=timeout, Bootstrap = 200 )   
 ```
 
 You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.

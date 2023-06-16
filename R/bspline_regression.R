@@ -25,7 +25,7 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
   ## Rescale the time axis to avoid numerical problems
   TMAX = max(yd[,1]);
   yd[,1] = yd[,1]/TMAX;
-  knots = knots/TMAX;
+  knots = unique(knots)/TMAX;
   t = time/TMAX;
 
   if( !(ORDER %in% 1:4) ){
@@ -43,6 +43,7 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
 
     bestAICc = NULL
     bestK    = NULL
+
     for( K in 1:8 ){
 
       DOF = K+ORDER
@@ -79,7 +80,12 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
 
       print( paste0( "K= ", K, " AICc=", AICc, " knots= ", paste0( round( knots, 1), collapse = " "  ) ) )
 
-      if( K==1 | (bestAICc > AICc) ){
+      if( K==1 ){
+        bestAICc = AICc #we initialise bestAICc
+        bestK    = K
+      }
+
+      if( AICc < bestAICc ){
         bestAICc = AICc #we minimise AICc
         bestK    = K
       }
@@ -113,53 +119,53 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
     h     = maxL$h
     m2loglik = maxL$m2loglik #this contains
 
-  # ## BOOTSTRAP NEEDED?
-  # if( Bootrsrap > 0 ){
-  # # Bootstrap - keep track of h(t), S(t), and alpha
-  # # We are just sampling with replacement
-  # # Use the MLE as the starting value?
-  #
-  #   hb = zeros(length(t),  B);
-  #   Sb = zeros(length(t), B);
-  #   alphab = zeros(B, length(alpha1));
-  #   m2loglikb = zeros(B, 1);
-  #
-  #   for( i in 1:B ){
-  #
-  #     iteration = (1 - i) %/% 5 #5-fold cross validation for each iteration
-  #
-  #     if( (i-1)%%5 ==0 ) shuffle = sample( x=1:size(yd,1) ) # index permutation
-  #
-  #     i_b = shuffle[ which( (0:(size(yd, 1)-1))%%5 != (i-1)%%5) ] #only 80% of the indices are selected
-  #
-  #     # i_b = ceil(size(yd, 1)*rand(size(yd, 1), 1));
-  #     yd0 = yd[i_b,]
-  #     Wik0 = Wik[i_b, ]
-  #     Zik0 = Zik[i_b, ]
-  #     # Eik0 = Eik[i_b, ]
-  #     Eik0 = NULL
-  #     maxLbi = hazl_ker( yd0, alpha0, Wik0, Zik0, Eik0, Xh, XH, smooth );
-  #
-  #     alphab[i,] = maxLbi$alpha1
-  #     hb[,i] = maxLbi$h
-  #     Sb[,i] = maxLbi$S
-  #     m2loglikb[i] = maxLbi$m2loglik
-  #     rm( maxLbi )
-  #   }
-  #   gc()
-  #
-  #   ###
-  #   # Package the results / pointwise confidence limits
-  #   # We are saving trios of columns / MLE, lower limit, upper limit
-  #   ###
-  #
-  #   # library( matrixStats )
-  #   h = cbind( h, rowQuantiles( hb, probs=c(alphalevel/2, 1-alphalevel/2), na.rm = T ) )
-  #
-  # } else { # no bootstrapping
+  ## BOOTSTRAP NEEDED?
+  if( Bootrsrap > 0 ){
+  # Bootstrap - keep track of h(t), S(t), and alpha
+  # We are just sampling with replacement
+  # Use the MLE as the starting value?
+
+    hb = zeros(length(t),  B);
+    Sb = zeros(length(t), B);
+    alphab = zeros(B, length(alpha1));
+    m2loglikb = zeros(B, 1);
+
+    for( i in 1:B ){
+
+      iteration = (1 - i) %/% 5 #5-fold cross validation for each iteration
+
+      if( (i-1)%%5 ==0 ) shuffle = sample( x=1:size(yd,1) ) # index permutation
+
+      i_b = shuffle[ which( (0:(size(yd, 1)-1))%%5 != (i-1)%%5) ] #only 80% of the indices are selected
+
+      # i_b = ceil(size(yd, 1)*rand(size(yd, 1), 1));
+      yd0 = yd[i_b,]
+      Wik0 = Wik[i_b, ]
+      Zik0 = Zik[i_b, ]
+      # Eik0 = Eik[i_b, ]
+      Eik0 = NULL
+      maxLbi = hazl_ker( yd0, alpha0, Wik0, Zik0, Eik0, Xh, XH, smooth );
+
+      alphab[i,] = maxLbi$alpha1
+      hb[,i] = maxLbi$h
+      Sb[,i] = maxLbi$S
+      m2loglikb[i] = maxLbi$m2loglik
+      rm( maxLbi )
+    }
+    gc()
+
+    ###
+    # Package the results / pointwise confidence limits
+    # We are saving trios of columns / MLE, lower limit, upper limit
+    ###
+
+    # library( matrixStats )
+    h = cbind( h, rowQuantiles( hb, probs=c(alphalevel/2, 1-alphalevel/2), na.rm = T ) )
+
+  } else { # no bootstrapping
     alphab = c();
     hb = c();
-  # }
+  }
 
   # rescale the hazard values and coefficients
   h = h/TMAX;

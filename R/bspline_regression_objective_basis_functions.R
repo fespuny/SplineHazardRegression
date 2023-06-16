@@ -24,30 +24,32 @@ bspline_regression_basis_functions <- function(tin, ORDER, knots, t ){
     sx = sort(x)
     si = order(x)
     inc = which(!is.na(sx))
-    n = length(inc)
+    n = length(x)
 
     knots = unique( as.numeric(knots) )
     Boundary.knots = c(min(knots),max(knots))
     Interior.knots = setdiff(knots,Boundary.knots)
+    p = length(Interior.knots)+ORDER     # Number of actual parameters (DOF)
 
     # Basis functions for h
-    Wik = NaN*zeros(n, length(knots)-ORDER)
+    Wik = NaN*zeros(n, p )
     if( length(inc) ){
-      Wik[si[inc], ] = #spcol(knots, order, sx[inc], 'noderiv')
-        bSpline( x=sx[inc], knots=Interior.knots, Boundary.knots=Boundary.knots, degree=(ORDER-1), intercept=TRUE)
+      Wik[si[inc], ] =
+#        bSpline( x=sx[inc], knots=Interior.knots, Boundary.knots=Boundary.knots, degree=(ORDER-1), intercept=TRUE)
+        generate_bspline_basis( time=sx[inc], Interior.knots, Boundary.knots, ORDER )
     }
 
     # Basis functions for the definite integral of h
     # * Lower limit of integration is the left endpoint of the basic interval
     # * This code is based on spcol and De Boor, PGS, p. 150-151.
-    nk = length(knots)
-    # Number of actual parameters
-    p = nk - ORDER
-    scl = (knots[(ORDER+1):(ORDER+p)] - knots[1:p])/ORDER
+    knots_with_multiplicity = c( rep(Boundary.knots[1],ORDER), Interior.knots, rep(Boundary.knots[2],ORDER) )
+    scl = (knots_with_multiplicity[(ORDER+1):(ORDER+p)] - knots_with_multiplicity[1:p])/ORDER
     z = (tril(kron(1:p*ones(1,p), ones(p,1))) > 0) * (ones(p,1)%*%scl)
     Zik = NaN*zeros(n,p)
     if( length(inc) ){
-      Zik[ si[inc], ] = bSpline( x=sx[inc], knots=Interior.knots, Boundary.knots=Boundary.knots, degree=ORDER, intercept=TRUE)[,-1]
+      Zik[ si[inc], ] =
+        # bSpline( x=sx[inc], knots=Interior.knots, Boundary.knots=Boundary.knots, degree=ORDER, intercept=TRUE)[,-1]
+        generate_bspline_basis( time=sx[inc], Interior.knots, Boundary.knots, (ORDER+1) )[,-1]
     }
     Zik = Zik%*%z
 
@@ -57,18 +59,20 @@ bspline_regression_basis_functions <- function(tin, ORDER, knots, t ){
     si = order(x)
     inc = which(!is.na(sx))
     n = length(x)
-    Xh = NaN*zeros(n,length(knots) - ORDER)
+    Xh = NaN*zeros(n,p)
 
     if( !length(inc) ){
-      print( "ERROR : You have no data to analyze" )
+      print( "ERROR : You have no data to analyze" ) ###//HERE HERE HERE
     }
-    Xh[ si[inc], ] = #spcol(knots, order, sx(inc), 'noderiv')
-      bSpline( x=sx[inc], knots=Interior.knots, Boundary.knots=Boundary.knots, degree=(ORDER-1), intercept=TRUE)
+    Xh[ si[inc], ] =
+#     bSpline( x=sx[inc], knots=Interior.knots, Boundary.knots=Boundary.knots, degree=(ORDER-1), intercept=TRUE)
+    generate_bspline_basis( time=sx[inc], Interior.knots, Boundary.knots, ORDER )
 
     # Basis functions t - define integral
     XH = NaN*zeros(n,p);
-    XH[si[inc],] = #spcol([knots, knots(end)], order+1, sx(inc), 'noderiv');
-      bSpline( x=sx[inc], knots=Interior.knots, Boundary.knots=Boundary.knots, degree=ORDER, intercept=TRUE)[,-1]
+    XH[si[inc],] =
+      # bSpline( x=sx[inc], knots=Interior.knots, Boundary.knots=Boundary.knots, degree=ORDER, intercept=TRUE)[,-1]
+    generate_bspline_basis( time=sx[inc], Interior.knots, Boundary.knots, (ORDER+1) )[,-1]
     XH = XH%*%z;
 
     return( list(
