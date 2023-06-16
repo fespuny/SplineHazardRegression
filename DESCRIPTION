@@ -13,4 +13,3 @@ LazyData: false
 URL: https://github.com/fespuny/SplineHazardRegression
 BugReports: https://github.com/fespuny/SplineHazardRegression/issues
 RoxygenNote: 7.2.3
-Depends: splines2, pracma

@@ -12,16 +12,12 @@
 #' @return list(alpha1,hout,Sout,m2loglik) - alpha1 is the new solution;
 #' using alpha1, the function also calculates the hazard (hout), survival (Sout) and objective function and gradient (m2loglik) ;
 #' @importFrom pracma zeros
+#' @importFrom stats optim
 #' @export
 #'
 hazl_ker = function(yd, alpha0, Wik, Zik, Eik, Xh, XH, smooth=FALSE){
   # wrapper function for fmincon's access to srllikb
-  # %
-  # % [alpha1, h, S, m2loglik] = hazl_ker(yd, alpha0, Wik, Zik, Eik, Xh, XH);
-  # %
-  # % See also srllikb, hspcore
-
-  # hoptions = optimset('TolFun', 1E-6, 'TolX', 1E-6, 'Display', 'none', ...
+  # MATLAB hoptions = optimset('TolFun', 1E-6, 'TolX', 1E-6, 'Display', 'none', ...
   #     'algorithm', 'interior-point', 'GradObj', 'on');
   p = size(Wik, 2)
   lwr = zeros(1, p);
