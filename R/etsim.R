@@ -12,7 +12,6 @@
 #'
 #'     t = array of times to event
 #'     status = 0 if alive at time t, 1 otherwise
-#'     entry = NULL [IS IT OK TO IGNORE LATE ENTRY AT THIS STAGE?]
 #' @importFrom stats runif
 #' @importFrom pracma interp1
 #' @export
@@ -65,7 +64,6 @@ etsim <- function( INPUTS ){
 
   return( list(
     time=y0,
-    status=status,
-    entry=NULL ##nothing to assign for the moment
+    status=status
   ))
 }

@@ -4,7 +4,6 @@
 #' @param alpha0 - initial solution value for the B-spline coefficients
 #' @param Wik - matrix as calculated by bspline_regression_basis_functions()
 #' @param Zik - matrix as calculated by bspline_regression_basis_functions()
-#' @param Eik - matrix as calculated by bspline_regression_basis_functions()
 #' @param Xh - matrix as calculated by bspline_regression_basis_functions()
 #' @param XH - matrix as calculated by bspline_regression_basis_functions()
 #' @param smooth
@@ -15,7 +14,7 @@
 #' @importFrom stats optim
 #' @export
 #'
-hazl_ker = function(yd, alpha0, Wik, Zik, Eik, Xh, XH, smooth=FALSE){
+hazl_ker = function(yd, alpha0, Wik, Zik, Xh, XH, smooth=FALSE){
   # wrapper function for fmincon's access to srllikb
   # MATLAB hoptions = optimset('TolFun', 1E-6, 'TolX', 1E-6, 'Display', 'none', ...
   #     'algorithm', 'interior-point', 'GradObj', 'on');
