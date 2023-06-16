@@ -1,0 +1,4 @@
+name	user	system	elapsed
+etsim	0.01	0.00	0.02	
+etsim_inputs	0	0	0	
+generate_bspline_basis	0.02	0.00	0.02	

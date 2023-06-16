@@ -55,11 +55,10 @@ library(SplineHazardRegression)
    cup = c(5, 10)
    cih = c(0.0125, 0.025)
    CParm = data.frame(cll, cup, cih) # 'Light Censoring'
-## simulation true distribution
+## calculate simulation true hazard and censoring distributions
    INPUTS = etsim_inputs( HParam=HParm, CParam=CParm)
+## simulate time-to-event data using true distribution
    SimDat = etsim(INPUTS)
-
-## generating the data
 ```
 
 What is special about using `README.Rmd` instead of just `README.md`?

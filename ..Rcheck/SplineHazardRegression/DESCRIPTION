@@ -9,8 +9,9 @@ Description: This code implements and further develops the methods from Philip S
     \href{https://doi.org/10.2307/2532989}{Biometrics, Vol. 51, No. 3 (Sep., 1995), pp. 874-887}.
 License: GPL-3
 Encoding: UTF-8
-LazyData: false
+LazyData: true
 URL: https://github.com/fespuny/SplineHazardRegression
 BugReports: https://github.com/fespuny/SplineHazardRegression/issues
 RoxygenNote: 7.2.3
 Depends: splines2, pracma
+Built: R 4.2.2; ; 2023-06-16 12:08:36 UTC; windows

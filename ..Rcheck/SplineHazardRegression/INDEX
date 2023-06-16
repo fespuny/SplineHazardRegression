@@ -1,0 +1,9 @@
+bspline_regression_basis_functions
+                        Generate the basis functions needed for fitting
+                        the hazard B-spline model
+etsim                   Simulate time-to-event data
+etsim_inputs            Generate hazard and censoring distributions
+generate_bspline_basis
+                        Generate B-Spline basis
+srllikb_fun             Objective function for b-spline hazard
+                        regression
