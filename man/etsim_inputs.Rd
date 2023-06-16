@@ -40,10 +40,6 @@ Returns a list of outputs (t, basis, h, hCensor, Sh, Scensor)
 \description{
 Generates hazard and censoring distributions and respective survival functions [IS IT OK TO IGNORE LATE ENTRY AT THIS STAGE?]
 }
-<<<<<<< HEAD
-\examples{
-#Generate input for a b-spline hazard simulation with piecewise exponential survival censoring
-=======
 \details{
 For 'exp', HParm contains a scalar;
     For 'pe', HParm(:, 1) is left limit, HParm(:, 2) is right limit, and HParm(:, 3) is hazard over the interval
@@ -52,7 +48,6 @@ For 'exp', HParm contains a scalar;
 }
 \examples{
     #Generate input for a b-spline hazard simulation with piecewise exponential survival censoring
->>>>>>> 3697aae2f514a41f3e8d7b8c09fa6a002ad982c5
     knots = c(0, 1, 3, 6, 10, NaN, NaN )
     betac = 1 * c(0.05, 0.05, 0.05, 0.05, 0.40, 0.1, 0.05)
     HParm = data.frame(knots, betac) # 'A Simple B-Spline'
