@@ -37,7 +37,7 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
   if( length(knots)<2 ) {
     print( "Automatic search for K the number of interior knots of the B-spline hazard function" )
 
-    Exterior.knots = c( min(t), max(t) )
+    Exterior.knots = c( min(yd[,1]), max(yd[,1]) )
     eventtimes = sort( yd[ yd[,2]==1, 1] )
     nevents = length( eventtimes )
 
@@ -52,14 +52,16 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
 
       ## candidate knots
       knots = c( min(eventtimes), Interior.knots, max(eventtimes) )
+      print( paste0( "K= ", K, " knots= ", paste0( round( knots, 1), collapse = " "  ) ) )
 
       ## Calculate all needed auxiliary matrices and functions
-      basis_functions = bspline_regression_basis_functions(yd, ORDER, knots, t )
+      basis_functions = bspline_regression_basis_functions(yd[,1], ORDER, knots, t )
 
       Wik = basis_functions$Wik
       Zik = basis_functions$Zik
       Xh  = basis_functions$Xh
       XH  = basis_functions$XH
+      print( paste0( "K= ", K, " knots= ", paste0( round( knots, 1), collapse = " "  ) ) )
 
       ## Initial guess for the coefficients
       alpha0 = (sum(yd[,2])/sum(yd[,1]))*ones(1, size(Wik,2))
@@ -77,8 +79,8 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
 
       print( paste0( "K= ", K, " AICc=", AICc, " knots= ", paste0( round( knots, 1), collapse = " "  ) ) )
 
-      if( K==1 | bestAICc > AICc ){
-        bestAICc = AICc
+      if( K==1 | (bestAICc > AICc) ){
+        bestAICc = AICc #we minimise AICc
         bestK    = K
       }
     }
@@ -90,9 +92,10 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
   }
 
   ## REGRESSION WITH KNOWN KNOTS
+  print( paste0( "K= ", length(knots)-2, " DOF= ", length(knots)-2+ORDER, " knots= ", paste0( round( knots, 1), collapse = " "  ) ) )
 
     ## Calculate all needed auxiliary matrices and functions
-    basis_functions = bspline_regression_basis_functions(yd, ORDER, knots, t )
+    basis_functions = bspline_regression_basis_functions(yd[,1], ORDER, knots, t )
 
     Wik = basis_functions$Wik
     Zik = basis_functions$Zik

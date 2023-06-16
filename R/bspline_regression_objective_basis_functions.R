@@ -2,7 +2,7 @@
 #'
 #' @description This function calculates all matrices needed for the estimation of a hazard function with censored time-to-event data using B-splines
 #'
-#' @param yd - matrix of time-to-event data; pneumonic y is event time, d is for delta, the status indicator
+#' @param tin - event/censoring times in data
 #' @param ORDER - 1 step, 2 linear, 3 quadratic, 4 cubic
 #' @param knots - sequence of knot locations
 #' @param t - vector of evaluation times
@@ -16,19 +16,19 @@
 #' @importFrom pracma zeros ones tril kron
 #' @export
 #'
-bspline_regression_basis_functions <- function(yd, ORDER, knots, t ){
+bspline_regression_basis_functions <- function(tin, ORDER, knots, t ){
 
     ## Calculate B-Spline Basis Functions (B-values) in terms of 'x'
     # We cannot pass any NaN values, these must be set aside
-    x = as.numeric(yd[,1])
+    x = as.numeric(tin)
     sx = sort(x)
     si = order(x)
     inc = which(!is.na(sx))
-    n = length(x)
+    n = length(inc)
 
     knots = unique( as.numeric(knots) )
     Boundary.knots = c(min(knots),max(knots))
-    Interior.knots = unique(knots)[2:(length(knots)-1)]
+    Interior.knots = setdiff(knots,Boundary.knots)
 
     # Basis functions for h
     Wik = NaN*zeros(n, length(knots)-ORDER)

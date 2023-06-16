@@ -8,7 +8,7 @@
 #' where \eqn{t_h} is the time to hazard (distributed according to the input \eqn{S_h})
 #' and \eqn{t_C} is the time to censoring (distributed according to the input \eqn{S_{censoring}})
 #'
-#' @return Returns a list of outputs (time, status)
+#' @return Returns a data frame of outputs (time, status)
 #'     time = array of times to event
 #'     status = 0 if alive at time t, 1 otherwise
 #' @importFrom stats runif
@@ -61,7 +61,7 @@ etsim <- function( INPUTS ){
   status[ !is.na(timeCensor) & !is.na(time) & timeCensor < time ] = 0 #status=0 means censoring
   status[ is.na(time) | (time > max(INPUTS$t)) ] = 0
 
-  return( list(
+  return( data.frame(
     time=y0,
     status=status
   ))

@@ -55,10 +55,12 @@ library(SplineHazardRegression)
    cih = c(0.0125, 0.025)
    CParm = data.frame(cll, cup, cih) # 'Light Censoring'
 ## calculate simulation true hazard and censoring distributions
-   INPUTS = etsim_inputs( HParam=HParm, CParam=CParm)
+   INPUTS = etsim_inputs( HParam=HParm, CParam=CParm, SampleSize = 101 )
 ## simulate time-to-event data using true distribution
    SimDat = etsim(INPUTS)
-
+## Fit a cubic B-spline regression model estimating the needed knots
+   timeout = seq( 0, 10, length.out = 101 )
+   Result = hspcore(yd=SimDat, ORDER=4, knots=c(0,5,10), time=timeout )
 
 ```
 

@@ -4,10 +4,10 @@
 \alias{bspline_regression_basis_functions}
 \title{Generate the basis functions needed for fitting the hazard B-spline model}
 \usage{
-bspline_regression_basis_functions(yd, ORDER, knots, t)
+bspline_regression_basis_functions(tin, ORDER, knots, t)
 }
 \arguments{
-\item{yd}{- matrix of time-to-event data; pneumonic y is event time, d is for delta, the status indicator}
+\item{tin}{- event/censoring times in data}
 
 \item{ORDER}{- 1 step, 2 linear, 3 quadratic, 4 cubic}
 
