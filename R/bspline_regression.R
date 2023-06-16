@@ -12,7 +12,8 @@
 #'
 #' @return list(alpha1,t,h,m2loglik,hb) - the optimal coefficients alpha1, the time variable, the optimal hazard, the objective function value and gradient, and the bootstrap hazards if any
 #' @importFrom matrixStats rowQuantiles
-#' @importFrom pracma size
+#' @importFrom pracma zeros
+#' @importFrom stats runif
 #'
 #' @details See \doi{<doi.org/10.2307/2532989>} the original paper by Philip S. Rosenberg.
 #'
@@ -65,7 +66,7 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
       print( paste0( "K= ", K, " knots= ", paste0( round( knots, 1), collapse = " "  ) ) )
 
       ## Initial guess for the coefficients
-      alpha0 = (sum(yd[,2])/sum(yd[,1]))*ones(1, size(Wik,2))
+      alpha0 = (sum(yd[,2])/sum(yd[,1]))*ones(1, ncol(Wik))
 
       ## Maximize the likelihood function by minimising the objective = -2*logLikekihood
       maxL = hazl_ker(yd, alpha0, Wik, Zik, Xh, XH )
@@ -109,7 +110,7 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
     XH  = basis_functions$XH
 
     ## Initial guess for the coefficients
-    alpha0 = (sum(yd[,2])/sum(yd[,1]))*ones(1, size(Wik,2))
+    alpha0 = (sum(yd[,2])/sum(yd[,1]))*ones(1, ncol(Wik))
 
     ## Maximize the likelihood function by minimising the objective = -2*logLikekihood
     maxL = hazl_ker(yd, alpha0, Wik, Zik, Xh, XH )
@@ -123,28 +124,20 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
   if( Bootrsrap > 0 ){
   # Bootstrap - keep track of h(t), S(t), and alpha
   # We are just sampling with replacement
-  # Use the MLE as the starting value?
+  # Use the MLE as the starting value
 
-    hb = zeros(length(t),  B);
-    Sb = zeros(length(t), B);
-    alphab = zeros(B, length(alpha1));
-    m2loglikb = zeros(B, 1);
+    hb = zeros(length(t),  Bootstrap);
+    Sb = zeros(length(t), Bootstrap);
+    alphab = zeros(Bootstrap, length(alpha1));
+    m2loglikb = zeros(Bootstrap, 1);
 
-    for( i in 1:B ){
+    for( i in 1:Bootstrap ){
 
-      iteration = (1 - i) %/% 5 #5-fold cross validation for each iteration
-
-      if( (i-1)%%5 ==0 ) shuffle = sample( x=1:size(yd,1) ) # index permutation
-
-      i_b = shuffle[ which( (0:(size(yd, 1)-1))%%5 != (i-1)%%5) ] #only 80% of the indices are selected
-
-      # i_b = ceil(size(yd, 1)*rand(size(yd, 1), 1));
+      i_b = ceil( runif( n=length(t), min=0, max=nrow(yd) ) )
       yd0 = yd[i_b,]
       Wik0 = Wik[i_b, ]
       Zik0 = Zik[i_b, ]
-      # Eik0 = Eik[i_b, ]
-      Eik0 = NULL
-      maxLbi = hazl_ker( yd0, alpha0, Wik0, Zik0, Eik0, Xh, XH, smooth );
+      maxLbi = hazl_ker( yd0, alpha1, Wik0, Zik0, Xh, XH );
 
       alphab[i,] = maxLbi$alpha1
       hb[,i] = maxLbi$h
@@ -160,7 +153,8 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
     ###
 
     # library( matrixStats )
-    h = cbind( h, rowQuantiles( hb, probs=c(alphalevel/2, 1-alphalevel/2), na.rm = T ) )
+    h = cbind( h, rowQuantiles( hb, probs=c(alphalevel/2, 1-alphalevel/2), na.rm=T ) )
+    S = cbind( S, rowQuantiles( Sb, probs=c(alphalevel/2, 1-alphalevel/2), na.rm=T ) )
 
   } else { # no bootstrapping
     alphab = c();
@@ -171,6 +165,7 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
   h = h/TMAX;
   alpha1 = alpha1/TMAX;
 
+
   if( Bootstrap > 0 ){
 
     hb = hb/TMAX;
@@ -180,6 +175,7 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
   return( list(alpha1=alpha1,
                t=t*TMAX,
                h=h,
+               S=S,
                m2loglik=m2loglik,
                hb=hb) )
 
