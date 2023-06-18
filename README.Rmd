@@ -73,7 +73,7 @@ hist( SimDat$time[ which(SimDat$status==0)], main="", xlab="t", breaks="Freedman
    yd0= read.csv("C:/local/CORU/Survival Hazard and KM/Philip Rosenberg papers and code/matlab v1 PR/Dataset1.csv", header = F, col.names = c("time","status") )
    SimDat = yd0
    timeout = seq( 0, 10, length.out = 101 )
-   Result = hspcore(yd=SimDat, ORDER=4, knots=c(0,1,3,6,10), time=timeout, Bootstrap = 200 )   
+   Result = hspcore(yd=SimDat, ORDER=4, knots=c(0,1,3,6,10), time=timeout, Bootstrap = 120 )   
 ```
 
 ```{r, result-figures-side, fig.show="hold", out.width="50%", echo=FALSE}

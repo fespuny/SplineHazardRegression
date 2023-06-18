@@ -22,23 +22,33 @@ hazl_ker = function(yd, alpha0, Wik, Zik, Xh, XH ){
   #OPTIMISATION WITH CONSTRAINTS (we compare two different R functions based on Fortran code)
   ## L-BFGS-B
   output_optim = optim( as.numeric(alpha0), srllikb_fun, srllikb_grad, yd, Wik, Zik, method = "L-BFGS-B", lower=0)
-  print( paste0( "L-BFGS-B Convergence (0=yes,1=maxiter)? ", output_optim$convergence ))
-  if( output_optim$convergence > 50 ){ print( paste0("L-BFGS-B Warning: ", output_optim$message))}
+
+  # print( paste0( "L-BFGS-B Convergence (0=yes,1=maxiter)? ", output_optim$convergence ))
+  # if( output_optim$convergence > 50 ){ print( paste0("L-BFGS-B Warning: ", output_optim$message))}
   alpha1 = as.numeric(output_optim$par) #array (interpreted as column vector in matrix operations)
 
     output_optim2 = nlminb( start=as.numeric(alpha0), objective=srllikb_fun, gradient=srllikb_grad, hessian=NULL,
                             yd, Wik, Zik, lower=lwr)
     alpha2 = as.numeric(output_optim2$par) #array (interpreted as column vector in matrix operations)
-    print( paste0( "PORT Convergence (0=yes)? ", output_optim2$convergence ))
-    if( output_optim2$convergence != 0 ){ print( paste0("PORT Warning: ", output_optim2$message))}
+    # print( paste0( "PORT Convergence (0=yes)? ", output_optim2$convergence ))
+    # if( output_optim2$convergence != 0 ){ print( paste0("PORT Warning: ", output_optim2$message))}
 
     if( output_optim2$convergence==0 ){
-      print( paste0( "Objective L-BFGS-B: ", output_optim$value, " Objective PORT: ", output_optim2$objective) )
       if( output_optim2$objective < output_optim$value ){
-        print( "Optimisation note: The PORT optimization routine was superior to the L-BFGS-B")
         alpha1 <- alpha2
       }
     }
+
+  ##report convergence properties
+  if( output_optim$convergence == 0 & output_optim2$convergence== 0 ){
+    print( paste0( "Objective L-BFGS-B: ", output_optim$value, " Objective PORT: ", output_optim2$objective) )
+  } else {
+    if( output_optim$convergence == 0 ) print( paste0( "Objective L-BFGS-B: ", output_optim$value ) )
+    if( output_optim2$convergence == 0 ) print( paste0( "Objective PORT: ", output_optim$value ) )
+    if( output_optim$convergence != 0 & output_optim2$convergence != 0 ) {
+      print( "L-BFGS-B error ", output_optim$message, " PORT error ", output_optim2$message )
+    }
+  }
 
   hout = Xh %*% alpha1;
   Sout = exp(-XH %*% alpha1 );

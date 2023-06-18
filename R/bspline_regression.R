@@ -11,15 +11,14 @@
 #' @param alphalevel - alpha level for confidence intervals if bootstrap is being used
 #'
 #' @return list(alpha1,t,h,m2loglik,hb) - the optimal coefficients alpha1, the time variable, the optimal hazard, the objective function value and gradient, and the bootstrap hazards if any
-#' @importFrom matrixStats rowQuantiles
 #' @importFrom pracma zeros ceil
-#' @importFrom stats runif
+#' @importFrom stats runif quantile
 #'
 #' @details See \doi{<doi.org/10.2307/2532989>} the original paper by Philip S. Rosenberg.
 #'
 #' @export
 #'
-hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
+hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.05){
 
   knots = unique( as.numeric(knots) )
 
@@ -125,7 +124,6 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
   if( Bootstrap > 0 ){
   # Bootstrap - keep track of h(t), S(t), and alpha
   # We are just sampling with replacement
-  # Use the MLE as the starting value
   print( "Variance estimation using bootstrap" )
 
     hb = zeros(length(t),  Bootstrap);
@@ -156,12 +154,22 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.95){
     ###
 
     # library( matrixStats )
-    h = cbind( h, rowQuantiles( hb, probs=c(alphalevel/2, 1-alphalevel/2), na.rm=T ) )
-    S = cbind( S, rowQuantiles( Sb, probs=c(alphalevel/2, 1-alphalevel/2), na.rm=T ) )
+    # h = cbind( h, rowQuantiles( hb, probs=c(alphalevel/2, 1-alphalevel/2), na.rm=T ) )
+    # S = cbind( S, rowQuantiles( Sb, probs=c(alphalevel/2, 1-alphalevel/2), na.rm=T ) )
+    hci = hb
+    Sci = Sb
+    for( j in 1:nrow(hb) ){
+      hci[j,] = sort( hb[j,] )
+      Sci[j,] = sort( Sb[j,] )
+    }
+    ialphaci = round( quantile(1:Bootstrap, c( alphalevel/2, 1-alphalevel/2) ) )
+    h = cbind(h, hci[,ialphaci])
+    S = cbind(S, Sci[,ialphaci])
 
   } else { # no bootstrapping
     alphab = c();
     hb = c();
+    Sb=c()
   }
 
   # rescale the hazard values and coefficients

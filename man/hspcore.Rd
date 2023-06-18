@@ -4,7 +4,7 @@
 \alias{hspcore}
 \title{Core function for B-spline hazard regression}
 \usage{
-hspcore(yd, ORDER = 4, knots, time, Bootstrap = 0, alphalevel = 0.95)
+hspcore(yd, ORDER = 4, knots, time, Bootstrap = 0, alphalevel = 0.05)
 }
 \arguments{
 \item{yd}{- matrix of time and status data; y is event time, d is for delta, the status indicator}
