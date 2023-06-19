@@ -6,13 +6,14 @@
 #' @param Zik - matrix as calculated by bspline_regression_basis_functions()
 #' @param Xh - matrix as calculated by bspline_regression_basis_functions()
 #' @param XH - matrix as calculated by bspline_regression_basis_functions()
+#' @param verbose - Boolean; if TRUE, the convergence of the two used optimisation routines is reported.
 #'
 #' @return list(alpha1,h,S,m2loglik) - alpha1 is the new solution;
 #' using alpha1, the function also calculates the hazard (h), survival (S) and objective function and gradient (m2loglik) ;
 #' @importFrom stats optim nlminb
 #' @export
 #'
-hazl_ker = function(yd, alpha0, Wik, Zik, Xh, XH ){
+hazl_ker = function(yd, alpha0, Wik, Zik, Xh, XH, verbose=FALSE ){
   # wrapper function for fmincon's access to srllikb
   # MATLAB hoptions = optimset('TolFun', 1E-6, 'TolX', 1E-6, 'Display', 'none', ...
   #     'algorithm', 'interior-point', 'GradObj', 'on');
@@ -32,19 +33,35 @@ hazl_ker = function(yd, alpha0, Wik, Zik, Xh, XH ){
     alpha2 = as.numeric(output_optim2$par) #array (interpreted as column vector in matrix operations)
     # print( paste0( "PORT Convergence (0=yes)? ", output_optim2$convergence ))
     # if( output_optim2$convergence != 0 ){ print( paste0("PORT Warning: ", output_optim2$message))}
+    convergence = c( output_optim$convergence,
+                     output_optim2$convergence,
+                     1 )
 
     if( output_optim2$convergence==0 ){
       if( output_optim2$objective < output_optim$value ){
         alpha1 <- alpha2
+        convergence[3] = 2
       }
     }
 
+  if( convergence[1] * convergence[2] != 0 ){
+    print( "ERROR: none of the tested optimization methods did converge ")
+    convergence[3] = 3
+    alpha1 <- alpha0
+  }
+
   ##report convergence properties
-  if( output_optim$convergence == 0 & output_optim2$convergence== 0 ){
-    print( paste0( "Objective L-BFGS-B: ", output_optim$value, " Objective PORT: ", output_optim2$objective) )
+  if( verbose ){
+    if( output_optim$convergence == 0 & output_optim2$convergence== 0 ){
+      print( paste0( "Objective L-BFGS-B: ", output_optim$value, " Objective PORT: ", output_optim2$objective) )
+    } else {
+      if( output_optim$convergence == 0 ) print( paste0( "Objective L-BFGS-B: ", output_optim$value, " PORT error ", output_optim2$message ) )
+      if( output_optim2$convergence == 0 ) print( paste0( "Objective PORT: ", output_optim$value ) )
+      if( output_optim$convergence != 0 & output_optim2$convergence != 0 ) {
+        print( "L-BFGS-B error ", output_optim$message, " PORT error ", output_optim2$message )
+      }
+    }
   } else {
-    if( output_optim$convergence == 0 ) print( paste0( "Objective L-BFGS-B: ", output_optim$value ) )
-    if( output_optim2$convergence == 0 ) print( paste0( "Objective PORT: ", output_optim$value ) )
     if( output_optim$convergence != 0 & output_optim2$convergence != 0 ) {
       print( "L-BFGS-B error ", output_optim$message, " PORT error ", output_optim2$message )
     }
@@ -59,5 +76,6 @@ hazl_ker = function(yd, alpha0, Wik, Zik, Xh, XH ){
   return( list(alpha1=alpha1,
                h=hout,
                S=Sout,
-               m2loglik=m2loglik) )
+               m2loglik=m2loglik,
+               convergence=convergence ) )
 }

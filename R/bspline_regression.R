@@ -5,10 +5,13 @@
 #'
 #' @param yd - matrix of time and status data; y is event time, d is for delta, the status indicator
 #' @param ORDER - 1 step, 2 linear, 3 quadratic, 4 cubic (i.e. ORDER=degree-1)
-#' @param knots - optional sequence of knot locations including endpoints (without multiplicity)
+#' @param Exterior.knots - start and end knot locations (without multiplicity)
+#' @param Interior.knots - optional sequence of interior knot locations excluding endpoints (without multiplicity)
+#' @param SelectBestKnots - Boolean; if TRUE an exploration for the best number of interior knots is performed
 #' @param time - vector of evaluation times
 #' @param Bootstrap - number of bootstrap samples (set to zero if none)
 #' @param alphalevel - alpha level for confidence intervals if bootstrap is being used
+#' @param verbose - boolean; if TRUE, the convergence of the two used optimisation routines is reported during bootstrap estimation of variance
 #'
 #' @return list(alpha1,t,h,m2loglik,hb) - the optimal coefficients alpha1, the time variable, the optimal hazard, the objective function value and gradient, and the bootstrap hazards if any
 #' @importFrom pracma zeros ceil
@@ -18,14 +21,19 @@
 #'
 #' @export
 #'
-hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.05){
+hspcore <- function(yd, ORDER=4, Exterior.knots, Interior.knots=NULL, SelectBestKnots, time, Bootstrap=0, alphalevel=0.05, verbose=FALSE){
 
-  knots = unique( as.numeric(knots) )
+  Exterior.knots = unique( as.numeric(Exterior.knots) )
+  if( length( Exterior.knots ) != 2 ){
+    print( "ERROR: Exterior.knots should contain 2 numeric values")
+    return(-1)
+  }
 
   ## Rescale the time axis to avoid numerical problems
   TMAX = max(yd[,1]);
   yd[,1] = yd[,1]/TMAX;
-  knots = unique(knots)/TMAX;
+  Exterior.knots = unique(Exterior.knots)/TMAX;
+  Interior.knots = unique(Interior.knots)/TMAX;
   t = time/TMAX;
 
   if( !(ORDER %in% 1:4) ){
@@ -34,10 +42,9 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.05){
   }
 
   ## AUTOMATIC SEARCH FOR KNOTS NEEDED?
-  if( length(knots)<2 ) {
+  if( SelectBestKnots==TRUE ) {
     print( "Automatic search for K the number of interior knots of the B-spline hazard function" )
 
-    Exterior.knots = c( min(yd[,1]), max(yd[,1]) )
     eventtimes = sort( yd[ yd[,2]==1, 1] )
     nevents = length( eventtimes )
 
@@ -52,8 +59,7 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.05){
       Interior.knots = eventtimes[ round( seq( nevents/(K+1), nevents/(K+1) * K , nevents/(K+1) ) ) ]
 
       ## candidate knots
-      knots = c( min(eventtimes), Interior.knots, max(eventtimes) )
-      print( paste0( "K= ", K, " knots= ", paste0( round( knots, 1), collapse = " "  ) ) )
+      knots = c( Exterior.knots[1], Interior.knots, Exterior.knots[2] )
 
       ## Calculate all needed auxiliary matrices and functions
       basis_functions = bspline_regression_basis_functions(yd[,1], ORDER, knots, t )
@@ -62,7 +68,6 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.05){
       Zik = basis_functions$Zik
       Xh  = basis_functions$Xh
       XH  = basis_functions$XH
-      print( paste0( "K= ", K, " knots= ", paste0( round( knots, 1), collapse = " "  ) ) )
 
       ## Initial guess for the coefficients
       alpha0 = (sum(yd[,2])/sum(yd[,1]))*ones(1, ncol(Wik))
@@ -93,9 +98,10 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.05){
     ## we use the best K found:
     print( paste0( "We use ", bestK , " interior B-spline knots"))
 
-    Interior.knots = eventtimes[ round( seq( nevents/(bestK+1), nevents/(bestK+1) * bestK , nevents/(bestK+1) ) ) ]
-    knots = c( min(eventtimes), Interior.knots, max(eventtimes) )
+    Interior.knots <- eventtimes[ round( seq( nevents/(bestK+1), nevents/(bestK+1) * bestK , nevents/(bestK+1) ) ) ]
   }
+
+  knots = c( Exterior.knots[1], Interior.knots, Exterior.knots[2] )
 
   ## REGRESSION WITH KNOWN KNOTS
   print( paste0( "K= ", length(knots)-2, " DOF= ", length(knots)-2+ORDER, " knots= ", paste0( round( knots, 1), collapse = " "  ) ) )
@@ -130,23 +136,32 @@ hspcore <- function(yd, ORDER=4, knots, time, Bootstrap=0, alphalevel=0.05){
     Sb = zeros(length(t), Bootstrap);
     alphab = zeros(Bootstrap, length(alpha1));
     m2loglikb = zeros(Bootstrap, 1);
+    convergence = zeros(Bootstrap, 3);
 
     for( i in 1:Bootstrap ){
 
-      # i_b = unique( ceil( runif( n=length(t), min=0, max=nrow(yd) ) ) )
+      #i_b = unique( ceil( runif( n=length(t), min=0, max=nrow(yd) ) ) )
       i_b = ceil( runif( n=length(t), min=0, max=nrow(yd) ) )
       yd0 = yd[i_b,]
       Wik0 = Wik[i_b, ]
       Zik0 = Zik[i_b, ]
-      maxLbi = hazl_ker( yd0, alpha0, Wik0, Zik0, Xh, XH );
+      maxLbi = hazl_ker( yd0, alpha0, Wik0, Zik0, Xh, XH, verbose );
 
       alphab[i,] = maxLbi$alpha1
       hb[,i] = maxLbi$h
       Sb[,i] = maxLbi$S
       m2loglikb[i] = maxLbi$m2loglik[1]
+      convergence[i,] = as.numeric( maxLbi$convergence )
       rm( maxLbi )
     }
     gc()
+
+    print( "1. Convergence L-BFGS-B (0=yes):" )
+    print( table( convergence[,1] ) )
+    print( "2. Convergence PORT (0=yes):" )
+    print( table( convergence[,2] ) )
+    print( "3. Winning methods:" )
+    print( table( convergence[,3] ) )
 
     ###
     # Package the results / pointwise confidence limits

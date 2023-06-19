@@ -4,7 +4,7 @@
 \alias{hazl_ker}
 \title{Optimisation of the objective function}
 \usage{
-hazl_ker(yd, alpha0, Wik, Zik, Xh, XH)
+hazl_ker(yd, alpha0, Wik, Zik, Xh, XH, verbose = FALSE)
 }
 \arguments{
 \item{yd}{- data}
@@ -18,6 +18,8 @@ hazl_ker(yd, alpha0, Wik, Zik, Xh, XH)
 \item{Xh}{- matrix as calculated by bspline_regression_basis_functions()}
 
 \item{XH}{- matrix as calculated by bspline_regression_basis_functions()}
+
+\item{verbose}{- Boolean; if TRUE, the convergence of the two used optimisation routines is reported.}
 }
 \value{
 list(alpha1,h,S,m2loglik) - alpha1 is the new solution;

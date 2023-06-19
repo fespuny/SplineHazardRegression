@@ -57,7 +57,7 @@ library(SplineHazardRegression)
    cih = c(0.0125, 0.025)
    CParm = data.frame(cll, cup, cih) # 'Light Censoring'
 ## calculate simulation true hazard and censoring distributions
-   INPUTS = etsim_inputs( HParam=HParm, CParam=CParm, SampleSize = 201 )
+   INPUTS = etsim_inputs( HParam=HParm, CParam=CParm, SampleSize = 301 )
 ## simulate time-to-event data using true distribution
    SimDat = etsim(INPUTS)
 ## histogram of the fully observed hazard data (gray) and censored observations (light blue)
@@ -70,10 +70,11 @@ hist( SimDat$time[ which(SimDat$status==0)], main="", xlab="t", breaks="Freedman
 
 ```{r regression}
 ## Fit a cubic B-spline regression model using the true knots
-   yd0= read.csv("C:/local/CORU/Survival Hazard and KM/Philip Rosenberg papers and code/matlab v1 PR/Dataset1.csv", header = F, col.names = c("time","status") )
-   SimDat = yd0
+   # yd0= read.csv("C:/local/CORU/Survival Hazard and KM/Philip Rosenberg papers and code/matlab v1 PR/Dataset1.csv", header = F, col.names = c("time","status") )
+   # SimDat = yd0
    timeout = seq( 0, 10, length.out = 101 )
-   Result = hspcore(yd=SimDat, ORDER=4, knots=c(0,1,3,6,10), time=timeout, Bootstrap = 120 )   
+   # Result = hspcore(yd=SimDat, ORDER=4, knots=c(0,1,3,6,10), time=timeout, Bootstrap = 120, verbose=FALSE )   
+   Result = hspcore(yd=SimDat, ORDER=4, Exterior.knots = c(0,10), Interior.knots=NULL, SelectBestKnots = TRUE, time=timeout, Bootstrap = 120, verbose=FALSE )   
 ```
 
 ```{r, result-figures-side, fig.show="hold", out.width="50%", echo=FALSE}
@@ -87,7 +88,7 @@ lines( Result$t, Result$h[,3], lty="dashed", col="blue" )
 # lines( Result2$t, Result2$h[,3], lty="dashed", col="red" )
 abline(v=c(0,5,10), h=seq(0.0,1.0,0.2), lty=2,col="gray" )
 
-Boundary.knots = c(min(knots),max(knots))
+Boundary.knots = c(0,10)
 DELTA = (Boundary.knots[2]-Boundary.knots[1])/(length(INPUTS$t)-1)
 H.true = cumsum(INPUTS$h*DELTA)
  DT = c(0, Result$t[-1]-Result$t[-length(Result$t)] ) 

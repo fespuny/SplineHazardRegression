@@ -4,20 +4,36 @@
 \alias{hspcore}
 \title{Core function for B-spline hazard regression}
 \usage{
-hspcore(yd, ORDER = 4, knots, time, Bootstrap = 0, alphalevel = 0.05)
+hspcore(
+  yd,
+  ORDER = 4,
+  Exterior.knots,
+  Interior.knots = NULL,
+  SelectBestKnots,
+  time,
+  Bootstrap = 0,
+  alphalevel = 0.05,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{yd}{- matrix of time and status data; y is event time, d is for delta, the status indicator}
 
 \item{ORDER}{- 1 step, 2 linear, 3 quadratic, 4 cubic (i.e. ORDER=degree-1)}
 
-\item{knots}{- optional sequence of knot locations including endpoints (without multiplicity)}
+\item{Exterior.knots}{- start and end knot locations (without multiplicity)}
+
+\item{Interior.knots}{- optional sequence of interior knot locations excluding endpoints (without multiplicity)}
+
+\item{SelectBestKnots}{- Boolean; if TRUE an exploration for the best number of interior knots is performed}
 
 \item{time}{- vector of evaluation times}
 
 \item{Bootstrap}{- number of bootstrap samples (set to zero if none)}
 
 \item{alphalevel}{- alpha level for confidence intervals if bootstrap is being used}
+
+\item{verbose}{- boolean; if TRUE, the convergence of the two used optimisation routines is reported during bootstrap estimation of variance}
 }
 \value{
 list(alpha1,t,h,m2loglik,hb) - the optimal coefficients alpha1, the time variable, the optimal hazard, the objective function value and gradient, and the bootstrap hazards if any
