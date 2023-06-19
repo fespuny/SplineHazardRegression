@@ -96,7 +96,7 @@ hspcore <- function(yd, ORDER=4, Exterior.knots, Interior.knots=NULL, SelectBest
       }
     }
     ## we use the best K found:
-    print( paste0( "We use ", bestK , " interior B-spline knots"))
+    print( paste0( "SEARCH RESULT: We use ", bestK , " interior B-spline knots"))
 
     Interior.knots <- eventtimes[ round( seq( nevents/(bestK+1), nevents/(bestK+1) * bestK , nevents/(bestK+1) ) ) ]
   }
@@ -145,7 +145,8 @@ hspcore <- function(yd, ORDER=4, Exterior.knots, Interior.knots=NULL, SelectBest
       yd0 = yd[i_b,]
       Wik0 = Wik[i_b, ]
       Zik0 = Zik[i_b, ]
-      maxLbi = hazl_ker( yd0, alpha0, Wik0, Zik0, Xh, XH, verbose );
+      alpha0i = (sum(yd0[,2])/sum(yd0[,1]))*ones(1, ncol(Wik0))
+      maxLbi = hazl_ker( yd0, alpha0i, Wik0, Zik0, Xh, XH, verbose );
 
       alphab[i,] = maxLbi$alpha1
       hb[,i] = maxLbi$h
@@ -156,12 +157,14 @@ hspcore <- function(yd, ORDER=4, Exterior.knots, Interior.knots=NULL, SelectBest
     }
     gc()
 
-    print( "1. Convergence L-BFGS-B (0=yes):" )
-    print( table( convergence[,1] ) )
-    print( "2. Convergence PORT (0=yes):" )
-    print( table( convergence[,2] ) )
-    print( "3. Winning methods:" )
-    print( table( convergence[,3] ) )
+    if( verbose ){
+      print( "1. Convergence L-BFGS-B (0=yes):" )
+      print( table( convergence[,1] ) )
+      print( "2. Convergence PORT (0=yes):" )
+      print( table( convergence[,2] ) )
+      print( "3. Winning methods:" )
+      print( table( convergence[,3] ) )
+    }
 
     ###
     # Package the results / pointwise confidence limits
@@ -203,6 +206,7 @@ hspcore <- function(yd, ORDER=4, Exterior.knots, Interior.knots=NULL, SelectBest
                h=h,
                S=S,
                m2loglik=m2loglik,
-               hb=hb) )
+               hb=hb,
+               convergenceb = convergence ) )
 
 }

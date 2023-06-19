@@ -22,7 +22,10 @@ hazl_ker = function(yd, alpha0, Wik, Zik, Xh, XH, verbose=FALSE ){
 
   #OPTIMISATION WITH CONSTRAINTS (we compare two different R functions based on Fortran code)
   ## L-BFGS-B
-  output_optim = optim( as.numeric(alpha0), srllikb_fun, srllikb_grad, yd, Wik, Zik, method = "L-BFGS-B", lower=0)
+  output_optim = list( par = alpha0, convergence=-1, value = srllikb_fun(alpha0, yd, Wik, Zik), message="" )   #initial values
+  tryCatch({
+    output_optim = optim( as.numeric(alpha0), srllikb_fun, srllikb_grad, yd, Wik, Zik, method = "L-BFGS-B", lower=0)
+    }, error= function(e){ output_optim$message <<- conditionMessage(e) } )
 
   # print( paste0( "L-BFGS-B Convergence (0=yes,1=maxiter)? ", output_optim$convergence ))
   # if( output_optim$convergence > 50 ){ print( paste0("L-BFGS-B Warning: ", output_optim$message))}
@@ -45,9 +48,9 @@ hazl_ker = function(yd, alpha0, Wik, Zik, Xh, XH, verbose=FALSE ){
     }
 
   if( convergence[1] * convergence[2] != 0 ){
-    print( "ERROR: none of the tested optimization methods did converge ")
+    print( "*ERROR* none of the tested optimization methods did converge ")
     convergence[3] = 3
-    alpha1 <- alpha0
+    alpha1 <<- alpha0
   }
 
   ##report convergence properties
@@ -58,12 +61,12 @@ hazl_ker = function(yd, alpha0, Wik, Zik, Xh, XH, verbose=FALSE ){
       if( output_optim$convergence == 0 ) print( paste0( "Objective L-BFGS-B: ", output_optim$value, " PORT error ", output_optim2$message ) )
       if( output_optim2$convergence == 0 ) print( paste0( "Objective PORT: ", output_optim$value ) )
       if( output_optim$convergence != 0 & output_optim2$convergence != 0 ) {
-        print( "L-BFGS-B error ", output_optim$message, " PORT error ", output_optim2$message )
+        print( paste0( "L-BFGS-B error ", output_optim$message, ". PORT error ", output_optim2$message ) )
       }
     }
   } else {
     if( output_optim$convergence != 0 & output_optim2$convergence != 0 ) {
-      print( "L-BFGS-B error ", output_optim$message, " PORT error ", output_optim2$message )
+      print( paste0( "L-BFGS-B error ", output_optim$message, ". PORT error ", output_optim2$message ) )
     }
   }
 
