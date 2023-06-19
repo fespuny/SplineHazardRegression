@@ -16,4 +16,32 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(SplineHazardRegression)
+## simulation parameters
+   knots = c(0, 1, 3, 6, 10, NA, NA)
+   betac = 1 * c(0.05, 0.05, 0.05, 0.05, 0.40, 0.1, 0.05)
+   HParm = data.frame(knots, betac) # 'A Simple B-Spline'
+   cll = c(0, 5)
+   cup = c(5, 10)
+   cih = c(0.0125, 0.025)
+   CParm = data.frame(cll, cup, cih) # 'Light Censoring'
+## CONTROL THE SIMULATION SEED FOR REPRODUCIBILITY
+  eff_seed <- sample(1:2^15, 1)
+  print(sprintf("Seed for session: %s", eff_seed))
+  set.seed(eff_seed)
+  set.seed( 32427 ) #this one poses convergence issues
+  
+  ##TO TEST
+  help( "constrOptim", package = "stats")
+  help( "bobyqa", package = "minqa") #stat.ucla.edu
+  help( "bobyqa", package = "nloptr") #much heavier package
+  ##MANY MORE AT https://cran.r-project.org/web/views/Optimization.html
+  
+## calculate simulation true hazard and censoring distributions
+   INPUTS = etsim_inputs( HParam=HParm, CParam=CParm, SampleSize = 301 )
+## simulate time-to-event data using true distribution
+   SimDat = etsim(INPUTS)
+## Solve
+   timeout = seq( 0, 10, length.out = 101 )
+   Result = hspcore(yd=SimDat, ORDER=4, Exterior.knots = c(0,10), Interior.knots=NULL, SelectBestKnots = TRUE, time=timeout, Bootstrap = 220, verbose=FALSE )  
+   table( c("L-BFGS-B","PORT","None")[ Result$convergenceb[,3] ] )
 ```
