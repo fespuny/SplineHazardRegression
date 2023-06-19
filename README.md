@@ -74,22 +74,22 @@ hist( SimDat$time[ which(SimDat$status==0)], main="", xlab="t", breaks="Freedman
    # Result = hspcore(yd=SimDat, ORDER=4, knots=c(0,1,3,6,10), time=timeout, Bootstrap = 120, verbose=FALSE )   
    Result = hspcore(yd=SimDat, ORDER=4, Exterior.knots = c(0,10), Interior.knots=NULL, SelectBestKnots = TRUE, time=timeout, Bootstrap = 220, verbose=FALSE )  
 #> [1] "Automatic search for K the number of interior knots of the B-spline hazard function"
-#> [1] "K= 1 AICc=98.8369107313701 knots= 0 0.5 1"
-#> [1] "K= 2 AICc=101.72570941807 knots= 0 0.3 0.6 1"
-#> [1] "K= 3 AICc=101.893346310461 knots= 0 0.3 0.5 0.6 1"
-#> [1] "K= 4 AICc=99.5429790656955 knots= 0 0.2 0.4 0.5 0.7 1"
-#> [1] "K= 5 AICc=103.821219138625 knots= 0 0.2 0.3 0.5 0.6 0.7 1"
-#> [1] "K= 6 AICc=70.5968005410835 knots= 0 0.2 0.3 0.4 0.5 0.6 0.7 1"
-#> [1] "K= 7 AICc=107.97293199042 knots= 0 0.2 0.3 0.4 0.5 0.5 0.6 0.7 1"
-#> [1] "K= 8 AICc=98.7417802769373 knots= 0 0.1 0.3 0.3 0.4 0.5 0.6 0.6 0.8 1"
-#> [1] "SEARCH RESULT: We use 6 interior B-spline knots"
-#> [1] "K= 6 DOF= 10 knots= 0 0.2 0.3 0.4 0.5 0.6 0.7 1"
+#> [1] "K= 1 AICc=276.663168661205 knots= 0 0.5 1"
+#> [1] "K= 2 AICc=270.745130690711 knots= 0 0.4 0.6 1"
+#> [1] "K= 3 AICc=271.361819043669 knots= 0 0.4 0.5 0.7 1"
+#> [1] "K= 4 AICc=272.418478398915 knots= 0 0.3 0.5 0.6 0.7 1"
+#> [1] "K= 5 AICc=274.639288244576 knots= 0 0.2 0.4 0.5 0.6 0.7 1"
+#> [1] "K= 6 AICc=275.484203868168 knots= 0 0.2 0.4 0.5 0.6 0.6 0.7 1"
+#> [1] "K= 7 AICc=277.113332549397 knots= 0 0.2 0.4 0.4 0.5 0.6 0.7 0.8 1"
+#> [1] "K= 8 AICc=279.377087603384 knots= 0 0.1 0.3 0.4 0.5 0.6 0.6 0.7 0.8 1"
+#> [1] "SEARCH RESULT: We use 2 interior B-spline knots"
+#> [1] "K= 2 DOF= 6 knots= 0 0.4 0.6 1"
 #> [1] "Variance estimation using bootstrap"
    
    table( c("L-BFGS-B","PORT","None")[ Result$convergenceb[,3] ] )
 #> 
 #> L-BFGS-B     PORT 
-#>      212        8
+#>      124       96
 ```
 
 <img src="man/figures/README-result-figures-side-1.png" width="50%" /><img src="man/figures/README-result-figures-side-2.png" width="50%" /><img src="man/figures/README-result-figures-side-3.png" width="50%" /><img src="man/figures/README-result-figures-side-4.png" width="50%" />
