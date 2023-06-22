@@ -2,7 +2,7 @@ Package: SplineHazardRegression
 Type: Package
 Title: R Code for B-Spline Hazard Regression in Survival Analysis
 Version: 0.1.0
-Author: Ferran Espuny Pujol, Philip Rosenberg
+Author: Ferran Espuny Pujol, Philip S. Rosenberg
 Maintainer: Ferran Espuny Pujol <f.pujol@ucl.ac.uk>
 Description: This code implements and further develops the methods from Philip S Rosenberg. 
     "Hazard Function Estimation Using B-Splines". 
