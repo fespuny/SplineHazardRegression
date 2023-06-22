@@ -51,6 +51,8 @@ hspcore <- function(yd, ORDER=4, Exterior.knots, Interior.knots=NULL, SelectBest
     bestAICc = NULL
     bestK    = NULL
 
+    convergence = zeros(8, 5);
+
     for( K in 1:8 ){
 
       DOF = K+ORDER
@@ -80,10 +82,11 @@ hspcore <- function(yd, ORDER=4, Exterior.knots, Interior.knots=NULL, SelectBest
       h     = maxL$h
       S     = maxL$S
       m2loglik = maxL$m2loglik #this contains
+      convergence[K,] = as.numeric( maxL$convergence )
 
       AICc = m2loglik[1] + 2 * DOF + 2 * DOF * (DOF+1) / (nrow(yd)-DOF-1)
 
-      print( paste0( "K= ", K, " AICc=", AICc, " knots= ", paste0( round( knots, 1), collapse = " "  ) ) )
+      print( paste0( "K= ", K, " AICc=", AICc, " knots= ", paste0( round( knots*TMAX, 1), collapse = " "  ) ) )
 
       if( K==1 ){
         bestAICc = AICc #we initialise bestAICc
@@ -104,7 +107,7 @@ hspcore <- function(yd, ORDER=4, Exterior.knots, Interior.knots=NULL, SelectBest
   knots = c( Exterior.knots[1], Interior.knots, Exterior.knots[2] )
 
   ## REGRESSION WITH KNOWN KNOTS
-  print( paste0( "K= ", length(knots)-2, " DOF= ", length(knots)-2+ORDER, " knots= ", paste0( round( knots, 1), collapse = " "  ) ) )
+  print( paste0( "K= ", length(knots)-2, " DOF= ", length(knots)-2+ORDER, " knots= ", paste0( round( knots*TMAX, 1), collapse = " "  ) ) )
 
     ## Calculate all needed auxiliary matrices and functions
     basis_functions = bspline_regression_basis_functions(yd[,1], ORDER, knots, t )
@@ -136,7 +139,7 @@ hspcore <- function(yd, ORDER=4, Exterior.knots, Interior.knots=NULL, SelectBest
     Sb = zeros(length(t), Bootstrap);
     alphab = zeros(Bootstrap, length(alpha1));
     m2loglikb = zeros(Bootstrap, 1);
-    convergence = zeros(Bootstrap, 3);
+    convergence = zeros(Bootstrap, 5);
 
     for( i in 1:Bootstrap ){
 
@@ -163,7 +166,7 @@ hspcore <- function(yd, ORDER=4, Exterior.knots, Interior.knots=NULL, SelectBest
       print( "2. Convergence PORT (0=yes):" )
       print( table( convergence[,2] ) )
       print( "3. Winning methods:" )
-      print( table( convergence[,3] ) )
+      print( table( convergence[,5] ) )
     }
 
     ###
@@ -201,11 +204,13 @@ hspcore <- function(yd, ORDER=4, Exterior.knots, Interior.knots=NULL, SelectBest
     alphab = alphab/TMAX;
   }
 
-  return( list(alpha1=alpha1,
+  return( list(Interior.knots=Interior.knots*TMAX,
+               alpha1=alpha1,
                t=t*TMAX,
                h=h,
                S=S,
                m2loglik=m2loglik,
+               alphab=alphab,
                hb=hb,
                convergenceb = convergence ) )
 
