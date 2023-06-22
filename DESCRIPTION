@@ -1,7 +1,7 @@
 Package: SplineHazardRegression
 Type: Package
 Title: R Code for B-Spline Hazard Regression in Survival Analysis
-Version: 0.1.1
+Version: 0.1.0
 Author: Ferran Espuny Pujol, Philip Rosenberg
 Maintainer: Ferran Espuny Pujol <f.pujol@ucl.ac.uk>
 Description: This code implements and further develops the methods from Philip S Rosenberg. 
@@ -10,8 +10,8 @@ Description: This code implements and further develops the methods from Philip S
 License: GPL-3
 Encoding: UTF-8
 LazyData: false
-URL: https://github.com/fespuny/SplineHazardRegressionTest
-BugReports: https://github.com/fespuny/SplineHazardRegressionTest/issues
+URL: https://github.com/fespuny/SplineHazardRegression
+BugReports: https://github.com/fespuny/SplineHazardRegression/issues
 RoxygenNote: 7.2.3
 Imports: splines2, stats, pracma
 Suggests: 

@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-There is no R software available for the direct estimation of hazards with uncertainty estimation (confidence intervals).
+Survival hazards are used in regression (Cox proportional hazards models) but rarely reported or visualized in descriptive analyses, where Kaplan-Meier cumulative survival and at best Nelson-Aalen cumulative hazard are commonly used. It turns out that describing survival hazards can be very informative, allowing to spot “instantaneous” patterns that are not visible in cumulative measures of hazard and survival, which in fact can be derived from hazard functions.
 
 The primary goal of SplineHazardRegression is to make available the methods 
 for flexible estimation of hazards using (cubic) b-splines published in 
@@ -27,9 +27,9 @@ for flexible estimation of hazards using (cubic) b-splines published in
     https://doi.org/10.2307/2532989
 The input data is time-to-event data (e.g. time to death), possibly right-censored and with late entries (both meaning that patients are followed-up for unequal times).
 
-The package also allows the flexible estimation of the cumulative hazard and cumulative survival functions, as well as the computation of aggregate measures for those (average, median, interquartile range, etc). 
+The package also allows the flexible estimation of the cumulative hazard and cumulative survival functions, and (in progress) the computation of aggregate measures for those (average, median, interquartile range, etc). 
 
-Different methods for the automatic selection of knots and for variance estimation are implemented.
+The automatic selection of knots and bootstrap variance estimation have been implemented. 
 
 ## Installation
 
@@ -74,9 +74,7 @@ hist( SimDat$time[ which(SimDat$status==0)], main="", xlab="t", breaks="Freedman
    # SimDat = yd0
    timeout = seq( 0, 10, length.out = 101 )
    # Result = hspcore(yd=SimDat, ORDER=4, knots=c(0,1,3,6,10), time=timeout, Bootstrap = 120, verbose=FALSE )   
-   Result = hspcore(yd=SimDat, ORDER=4, Exterior.knots = c(0,10), Interior.knots=NULL, SelectBestKnots = TRUE, time=timeout, Bootstrap = 220, verbose=FALSE )  
-   
-   table( c("L-BFGS-B","PORT","None")[ Result$convergenceb[,3] ] )
+   Result = hspcore(yd=SimDat, ORDER=4, Exterior.knots = c(0,10), Interior.knots=NULL, SelectBestKnots = TRUE, time=timeout, Bootstrap = 200, verbose=FALSE )  
 ```
 
 ```{r, result-figures-side, fig.show="hold", out.width="50%", echo=FALSE}
@@ -85,10 +83,8 @@ plot( INPUTS$t, INPUTS$h, type="l", col="green",ylim=c(0,1.0),xlab="t",ylab="eve
 lines( Result$t, Result$h[,1], col="blue")
 lines( Result$t, Result$h[,2], lty="dashed", col="blue" )
 lines( Result$t, Result$h[,3], lty="dashed", col="blue" )
-# lines( Result2$t, Result2$h[,1], col="red")
-# lines( Result2$t, Result2$h[,2], lty="dashed", col="red" )
-# lines( Result2$t, Result2$h[,3], lty="dashed", col="red" )
 abline(v=c(0,5,10), h=seq(0.0,1.0,0.2), lty=2,col="gray" )
+legend(0.01, .99, c("True solution", "Fitted model"), lwd=1, lty=1, col=c("green","blue"), bty = "n")
 
 Boundary.knots = c(0,10)
 DELTA = (Boundary.knots[2]-Boundary.knots[1])/(length(INPUTS$t)-1)
@@ -104,6 +100,7 @@ lines( Result$t, cumsum( Result$h[,3] * DT ), lty="dashed", col="blue")
 # lines( Result2$t, cumsum( Result2$h[,2] * DT ), lty="dashed", col="red")
 # lines( Result2$t, cumsum( Result2$h[,3] * DT ), lty="dashed", col="red")
 abline(v=c(0,5,10), h=seq(0.0,2.5,0.5), lty=2,col="gray" )
+legend(0.01, .99, c("True solution", "Fitted model"), lwd=1, lty=1, col=c("green","blue"), bty = "n")
 
 plot( INPUTS$t, INPUTS$Sh, type="l", col="green", ylim=c(0,1.0),xlab="t",ylab= "Survival Probability [exp(-H)]",bty="n")
 lines( Result$t, exp( - H.result ), col="blue")
@@ -113,8 +110,9 @@ lines( Result$t, exp( - cumsum( Result$h[,3] * DT ) ), lty="dashed", col="blue")
 # lines( Result2$t, exp( - cumsum( Result2$h[,2] * DT ) ), lty="dashed", col="red")
 # lines( Result2$t, exp( - cumsum( Result2$h[,3] * DT ) ), lty="dashed", col="red")
 abline(v=c(0,5,10), h=seq(0.0,1.0,0.2), lty=2,col="gray" )
+legend(6, .99, c("True solution", "Fitted model"), lwd=1, lty=1, col=c("green","blue"), bty = "n")
 
-plot( INPUTS$t, INPUTS$Sh, type="l", col="green", ylim=c(0,1.0),xlab="t",ylab="CV Survival Probability",bty="n")
+plot( INPUTS$t, INPUTS$Sh, type="l", col="green", ylim=c(0,1.0),xlab="t",ylab=" Survival Probability (Bootstrap)",bty="n")
 lines( Result$t, Result$S[,1], col="blue")
 lines( Result$t, Result$S[,2], lty="dashed", col="blue")
 lines( Result$t, Result$S[,3], lty="dashed", col="blue")
@@ -122,6 +120,7 @@ lines( Result$t, Result$S[,3], lty="dashed", col="blue")
 # lines( Result2$t, Result2$S[,2], lty="dashed", col="red")
 # lines( Result2$t, Result2$S[,3], lty="dashed", col="red")
 abline(v=c(0,5,10), h=seq(0.0,1.0,0.2), lty=2,col="gray" )
+legend(6, .99, c("True solution", "Fitted model"), lwd=1, lty=1, col=c("green","blue"), bty = "n")
 ```
 
 

@@ -6,8 +6,13 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-There is no R software available for the direct estimation of hazards
-with uncertainty estimation (confidence intervals).
+Survival hazards are used in regression (Cox proportional hazards
+models) but rarely reported or visualized in descriptive analyses, where
+Kaplan-Meier cumulative survival and at best Nelson-Aalen cumulative
+hazard are commonly used. It turns out that describing survival hazards
+can be very informative, allowing to spot “instantaneous” patterns that
+are not visible in cumulative measures of hazard and survival, which in
+fact can be derived from hazard functions.
 
 The primary goal of SplineHazardRegression is to make available the
 methods for flexible estimation of hazards using (cubic) b-splines
@@ -18,12 +23,12 @@ B-Splines” In Biometrics, Vol. 51, No. 3 (Sep., 1995), pp. 874-887
 (both meaning that patients are followed-up for unequal times).
 
 The package also allows the flexible estimation of the cumulative hazard
-and cumulative survival functions, as well as the computation of
+and cumulative survival functions, and (in progress) the computation of
 aggregate measures for those (average, median, interquartile range,
 etc).
 
-Different methods for the automatic selection of knots and for variance
-estimation are implemented.
+The automatic selection of knots and bootstrap variance estimation have
+been implemented.
 
 ## Installation
 
@@ -72,24 +77,19 @@ hist( SimDat$time[ which(SimDat$status==0)], main="", xlab="t", breaks="Freedman
    # SimDat = yd0
    timeout = seq( 0, 10, length.out = 101 )
    # Result = hspcore(yd=SimDat, ORDER=4, knots=c(0,1,3,6,10), time=timeout, Bootstrap = 120, verbose=FALSE )   
-   Result = hspcore(yd=SimDat, ORDER=4, Exterior.knots = c(0,10), Interior.knots=NULL, SelectBestKnots = TRUE, time=timeout, Bootstrap = 220, verbose=FALSE )  
+   Result = hspcore(yd=SimDat, ORDER=4, Exterior.knots = c(0,10), Interior.knots=NULL, SelectBestKnots = TRUE, time=timeout, Bootstrap = 200, verbose=FALSE )  
 #> [1] "Automatic search for K the number of interior knots of the B-spline hazard function"
-#> [1] "K= 1 AICc=276.663168661205 knots= 0 0.5 1"
-#> [1] "K= 2 AICc=270.745130690711 knots= 0 0.4 0.6 1"
-#> [1] "K= 3 AICc=271.361819043669 knots= 0 0.4 0.5 0.7 1"
-#> [1] "K= 4 AICc=272.418478398915 knots= 0 0.3 0.5 0.6 0.7 1"
-#> [1] "K= 5 AICc=274.639288244576 knots= 0 0.2 0.4 0.5 0.6 0.7 1"
-#> [1] "K= 6 AICc=275.484203868168 knots= 0 0.2 0.4 0.5 0.6 0.6 0.7 1"
-#> [1] "K= 7 AICc=277.113332549397 knots= 0 0.2 0.4 0.4 0.5 0.6 0.7 0.8 1"
-#> [1] "K= 8 AICc=279.377087603384 knots= 0 0.1 0.3 0.4 0.5 0.6 0.6 0.7 0.8 1"
+#> [1] "K= 1 AICc=291.454100954995 knots= 0 5.1 10"
+#> [1] "K= 2 AICc=289.735447782933 knots= 0 4.1 6 10"
+#> [1] "K= 3 AICc=291.259088166863 knots= 0 3.2 5.1 6.7 10"
+#> [1] "K= 4 AICc=293.260029150116 knots= 0 2.9 4.6 5.7 6.9 10"
+#> [1] "K= 5 AICc=295.00591310047 knots= 0 2.4 4.1 5.1 6 7.1 10"
+#> [1] "K= 6 AICc=297.449056769988 knots= 0 2.2 3.6 4.7 5.6 6.5 7.3 10"
+#> [1] "K= 7 AICc=298.921782713427 knots= 0 2.1 3.2 4.4 5.1 5.9 6.7 7.5 10"
+#> [1] "K= 8 AICc=298.284338898161 knots= 0 1.6 3 4.1 4.8 5.4 6 6.8 7.6 10"
 #> [1] "SEARCH RESULT: We use 2 interior B-spline knots"
-#> [1] "K= 2 DOF= 6 knots= 0 0.4 0.6 1"
+#> [1] "K= 2 DOF= 6 knots= 0 4.1 6 10"
 #> [1] "Variance estimation using bootstrap"
-   
-   table( c("L-BFGS-B","PORT","None")[ Result$convergenceb[,3] ] )
-#> 
-#> L-BFGS-B     PORT 
-#>      124       96
 ```
 
 <img src="man/figures/README-result-figures-side-1.png" width="50%" /><img src="man/figures/README-result-figures-side-2.png" width="50%" /><img src="man/figures/README-result-figures-side-3.png" width="50%" /><img src="man/figures/README-result-figures-side-4.png" width="50%" />

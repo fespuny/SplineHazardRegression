@@ -47,7 +47,7 @@ library(SplineHazardRegression)
    Interior.knots = Result$Interior.knots
    Interior.knots
    # Then, we apply bootstrap to calculate the variance
-   Result = hspcore(yd=SimDat, ORDER=4, Exterior.knots = c(0,10), Interior.knots=Interior.knots, SelectBestKnots = FALSE, time=timeout, Bootstrap = 150, verbose=FALSE )
+   Result = hspcore(yd=SimDat, ORDER=4, Exterior.knots = c(0,10), Interior.knots=Interior.knots, SelectBestKnots = FALSE, time=timeout, Bootstrap = 200, verbose=FALSE )
      # Convergence issues with some algorithms
    print( paste0( "Times converged: L-BFGS-B ", sum( Result$convergence[,1]==0 ), ", PORT ", sum( Result$convergence[,2]==0 ),
                   ", Barrier ", sum( Result$convergence[,3]==0 ), ", BOBYQA ", sum( Result$convergence[,4]>0 ) ) )
@@ -55,8 +55,10 @@ library(SplineHazardRegression)
    table( c("L-BFGS-B","PORT", "Barrier", "BOBYQA", "None")[ Result$convergenceb[,5] ] )
     # were the bootstrap iterations having all coefficients non-zero? (i.e. how many of the basis B-splines with the selected knots were used?)
    table( rowSums( Result$alphab > 1.E-6 ) ) #in most cases, 8 or 9 coefs out of 10 were non-zero
-   colSums( Result$alphab < 1.E-6 ) # the extreme basis functions were the less used
+   colSums( Result$alphab > 1.E-6 ) # the extreme basis functions were the less used
 ```
+
+Let's visualize the results.
 
 ```{r, result-figures-side, fig.show="hold", out.width="50%", echo=FALSE}
 ### COMBINED FIGURES
@@ -93,7 +95,7 @@ lines( Result$t, exp( - cumsum( Result$h[,3] * DT ) ), lty="dashed", col="blue")
 # lines( Result2$t, exp( - cumsum( Result2$h[,3] * DT ) ), lty="dashed", col="red")
 abline(v=c(0,5,10), h=seq(0.0,1.0,0.2), lty=2,col="gray" )
 
-plot( INPUTS$t, INPUTS$Sh, type="l", col="green", ylim=c(0,1.0),xlab="t",ylab="CV Survival Probability",bty="n")
+plot( INPUTS$t, INPUTS$Sh, type="l", col="green", ylim=c(0,1.0),xlab="t",ylab="Bootstrap Survival Probability",bty="n")
 lines( Result$t, Result$S[,1], col="blue")
 lines( Result$t, Result$S[,2], lty="dashed", col="blue")
 lines( Result$t, Result$S[,3], lty="dashed", col="blue")
@@ -113,7 +115,7 @@ abline(v=c(0,5,10), h=seq(0.0,1.0,0.2), lty=2,col="gray" )
    Interior.knots = Result$Interior.knots
    Interior.knots
    # Then, we apply bootstrap to calculate the variance
-   Result = hspcore(yd=SimDat, ORDER=3, Exterior.knots = c(0,10), Interior.knots=Interior.knots, SelectBestKnots = FALSE, time=timeout, Bootstrap = 150, verbose=FALSE )
+   Result = hspcore(yd=SimDat, ORDER=3, Exterior.knots = c(0,10), Interior.knots=Interior.knots, SelectBestKnots = FALSE, time=timeout, Bootstrap = 200, verbose=FALSE )
      # Convergence issues with some algorithms
    print( paste0( "Times converged: L-BFGS-B ", sum( Result$convergence[,1]==0 ), ", PORT ", sum( Result$convergence[,2]==0 ),
                   ", Barrier ", sum( Result$convergence[,3]==0 ), ", BOBYQA ", sum( Result$convergence[,4]>0 ) ) )
@@ -121,7 +123,7 @@ abline(v=c(0,5,10), h=seq(0.0,1.0,0.2), lty=2,col="gray" )
    table( c("L-BFGS-B","PORT", "Barrier", "BOBYQA", "None")[ Result$convergenceb[,5] ] )
     # were the bootstrap iterations having all coefficients non-zero? (i.e. how many of the basis B-splines with the selected knots were used?)
    table( rowSums( Result$alphab > 1.E-6 ) ) #in most cases, 4 coefs were non-zero
-   colSums( Result$alphab < 1.E-6 ) # the extreme endpoint basis function was the less used
+   colSums( Result$alphab > 1.E-6 ) # the extreme endpoint basis function was the less used
 ```
 
 ```{r, resultQ-figures-side, fig.show="hold", out.width="50%", echo=FALSE}
@@ -159,7 +161,7 @@ lines( Result$t, exp( - cumsum( Result$h[,3] * DT ) ), lty="dashed", col="blue")
 # lines( Result2$t, exp( - cumsum( Result2$h[,3] * DT ) ), lty="dashed", col="red")
 abline(v=c(0,5,10), h=seq(0.0,1.0,0.2), lty=2,col="gray" )
 
-plot( INPUTS$t, INPUTS$Sh, type="l", col="green", ylim=c(0,1.0),xlab="t",ylab="CV Survival Probability",bty="n")
+plot( INPUTS$t, INPUTS$Sh, type="l", col="green", ylim=c(0,1.0),xlab="t",ylab="Bootstrap Survival Probability",bty="n")
 lines( Result$t, Result$S[,1], col="blue")
 lines( Result$t, Result$S[,2], lty="dashed", col="blue")
 lines( Result$t, Result$S[,3], lty="dashed", col="blue")
