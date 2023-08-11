@@ -75,20 +75,27 @@ hist( SimDat$time[ which(SimDat$status==0)], main="", xlab="t", breaks="Freedman
 ## Fit a cubic B-spline regression model using the true knots
    # yd0= read.csv("C:/local/CORU/Survival Hazard and KM/Philip Rosenberg papers and code/matlab v1 PR/Dataset1.csv", header = F, col.names = c("time","status") )
    # SimDat = yd0
-   timeout = seq( 0, 10, length.out = 101 )
+   timeout = seq( 0, 10, length.out = 501 )
    # Result = hspcore(yd=SimDat, ORDER=4, knots=c(0,1,3,6,10), time=timeout, Bootstrap = 120, verbose=FALSE )   
    Result = hspcore(yd=SimDat, ORDER=4, Exterior.knots = c(0,10), Interior.knots=NULL, SelectBestKnots = TRUE, time=timeout, Bootstrap = 200, verbose=FALSE )  
 #> [1] "Automatic search for K the number of interior knots of the B-spline hazard function"
-#> [1] "K= 1 AICc=291.454100954995 knots= 0 5.1 10"
-#> [1] "K= 2 AICc=289.735447782933 knots= 0 4.1 6 10"
-#> [1] "K= 3 AICc=291.259088166863 knots= 0 3.2 5.1 6.7 10"
-#> [1] "K= 4 AICc=293.260029150116 knots= 0 2.9 4.6 5.7 6.9 10"
-#> [1] "K= 5 AICc=295.00591310047 knots= 0 2.4 4.1 5.1 6 7.1 10"
-#> [1] "K= 6 AICc=297.449056769988 knots= 0 2.2 3.6 4.7 5.6 6.5 7.3 10"
-#> [1] "K= 7 AICc=298.921782713427 knots= 0 2.1 3.2 4.4 5.1 5.9 6.7 7.5 10"
-#> [1] "K= 8 AICc=298.284338898161 knots= 0 1.6 3 4.1 4.8 5.4 6 6.8 7.6 10"
+#> [1] "K=0, m2loglik=303.36, DOF=4, AICc=311.49, knots= 0 10"
+#> [1] "K=1, m2loglik=300.14, DOF=5, AICc=310.35, knots= 0 5.2 10"
+#> [1] "K=2, m2loglik=289.72, DOF=6, AICc=302, knots= 0 4.4 6.1 10"
+#> [1] "K=3, m2loglik=288.5, DOF=7, AICc=302.88, knots= 0 3.7 5.2 6.7 10"
+#> [1] "K=4, m2loglik=288.62, DOF=8, AICc=305.11, knots= 0 3.3 4.7 5.6 6.9 10"
+#> [1] "K=5, m2loglik=287.44, DOF=9, AICc=306.05, knots= 0 2.6 4.4 5.2 6.1 7.2 10"
+#> [1] "K=6, m2loglik=287.3, DOF=10, AICc=308.06, knots= 0 2.3 4 4.8 5.4 6.3 7.4 10"
+#> [1] "K=7, m2loglik=287.13, DOF=11, AICc=310.05, knots= 0 2 3.7 4.6 5.2 5.7 6.7 7.4 10"
+#> [1] "K=8, m2loglik=286.42, DOF=12, AICc=311.51, knots= 0 1.7 3.4 4.4 4.9 5.4 6.1 6.8 7.6 10"
+#> [1] "K=9, m2loglik=285.57, DOF=13, AICc=312.84, knots= 0 1.4 3.3 4.2 4.7 5.2 5.6 6.2 6.9 7.7 10"
+#> [1] "K=10, m2loglik=286.06, DOF=14, AICc=315.52, knots= 0 1.2 3 3.9 4.5 4.9 5.4 5.9 6.5 7 8 10"
+#> [1] "K=11, m2loglik=284.8, DOF=15, AICc=316.48, knots= 0 1 2.6 3.7 4.4 4.8 5.2 5.6 6.1 6.7 7.2 8.1 10"
+#> [1] "K=12, m2loglik=284.19, DOF=16, AICc=318.1, knots= 0 0.9 2.4 3.5 4.3 4.6 4.9 5.3 5.7 6.2 6.8 7.3 8.3 10"
+#> [1] "K=13, m2loglik=283.5, DOF=17, AICc=319.66, knots= 0 0.9 2.3 3.4 4 4.5 4.8 5.2 5.4 5.9 6.3 6.8 7.4 8.3 10"
+#> [1] "K=14, m2loglik=281.85, DOF=18, AICc=320.27, knots= 0 0.8 2.2 3.3 3.9 4.4 4.7 4.9 5.3 5.6 6.1 6.6 6.9 7.4 8.4 10"
 #> [1] "SEARCH RESULT: We use 2 interior B-spline knots"
-#> [1] "K= 2 DOF= 6 knots= 0 4.1 6 10"
+#> [1] "K= 2 DOF= 6 knots= 0 4.4 6.1 10"
 #> [1] "Variance estimation using bootstrap"
 ```
 
