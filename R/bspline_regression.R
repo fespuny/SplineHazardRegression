@@ -51,17 +51,24 @@ hspcore <- function(yd, ORDER=4, Exterior.knots, Interior.knots=NULL, SelectBest
     bestAICc = NULL
     bestK    = NULL
 
-    convergence = zeros(8, 5);
+    nKs = 15
 
-    for( K in 1:8 ){
+    convergence = zeros(nKs, 5);
+
+    for( K in 0:(nKs-1) ){
 
       DOF = K+ORDER
 
-      ## interior knots using K percentiles for the event times
-      Interior.knots = eventtimes[ round( seq( nevents/(K+1), nevents/(K+1) * K , nevents/(K+1) ) ) ]
-
       ## candidate knots
-      knots = c( Exterior.knots[1], Interior.knots, Exterior.knots[2] )
+      if( K >0 ){
+        ## interior knots using K percentiles for the event times
+        #Interior.knots = eventtimes[ round( seq( nevents/(K+1), nevents/(K+1) * K , nevents/(K+1) ) ) ]
+        Interior.knots = interp1( 1:nevents, eventtimes, seq( nevents/(K+1), nevents/(K+1) * K , nevents/(K+1) ), method="linear" )
+
+        knots = c( Exterior.knots[1], Interior.knots, Exterior.knots[2] )
+      } else {
+        knots = Exterior.knots
+      }
 
       ## Calculate all needed auxiliary matrices and functions
       basis_functions = bspline_regression_basis_functions(yd[,1], ORDER, knots, t )
@@ -82,13 +89,13 @@ hspcore <- function(yd, ORDER=4, Exterior.knots, Interior.knots=NULL, SelectBest
       h     = maxL$h
       S     = maxL$S
       m2loglik = maxL$m2loglik #this contains
-      convergence[K,] = as.numeric( maxL$convergence )
+      convergence[K+1,] = as.numeric( maxL$convergence )
 
-      AICc = m2loglik[1] + 2 * DOF + 2 * DOF * (DOF+1) / (nrow(yd)-DOF-1)
+      AICc = m2loglik[1] + 2 * DOF #+ 2 * DOF * (DOF+1) / (nrow(yd)-DOF-1)
 
-      print( paste0( "K= ", K, " AICc=", AICc, " knots= ", paste0( round( knots*TMAX, 1), collapse = " "  ) ) )
+      print( paste0( "K=", K, ", m2loglik=", round(m2loglik[1],2), ", DOF=", DOF, ", AIC=", round(AICc,2), ", knots= ", paste0( round( knots*TMAX, 1), collapse = " "  ) ) )
 
-      if( K==1 ){
+      if( K==0 ){
         bestAICc = AICc #we initialise bestAICc
         bestK    = K
       }
@@ -101,7 +108,12 @@ hspcore <- function(yd, ORDER=4, Exterior.knots, Interior.knots=NULL, SelectBest
     ## we use the best K found:
     print( paste0( "SEARCH RESULT: We use ", bestK , " interior B-spline knots"))
 
-    Interior.knots <- eventtimes[ round( seq( nevents/(bestK+1), nevents/(bestK+1) * bestK , nevents/(bestK+1) ) ) ]
+    ## final knots
+    if( bestK >0 ){
+      Interior.knots = interp1( 1:nevents, eventtimes, seq( nevents/(bestK+1), nevents/(bestK+1) * bestK , nevents/(bestK+1) ), method="linear" )
+    } else {
+      Interior.knots = c()
+    }
   }
 
   knots = c( Exterior.knots[1], Interior.knots, Exterior.knots[2] )

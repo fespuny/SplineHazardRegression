@@ -15,10 +15,16 @@ srllikb_fun = function(par.alpha, yd, Wik, Zik){
   alphaT = as.numeric(par.alpha) #arrays work as column vectors in matrix multiplication
 
   aux = Wik%*%alphaT
-  logWikalpha = NaN*zeros( nrow(aux), ncol(aux) )
-  logWikalpha[ which(aux>=0) ] = log(aux[ which(aux>=0) ])
 
-  l = -2*sum( yd[, 2] * logWikalpha - Zik%*%alphaT, na.rm=T)
+  logWikalpha = log( aux )
+
+  if( sum( aux<=0 ) > 0 ){
+    logWikalpha = Inf*zeros( nrow(aux), ncol(aux) )
+  }
+
+  l = -2*sum( yd[, 2] * logWikalpha - Zik%*%alphaT )
+
+  if( is.na(l)) l = Inf
 
   ## L-BFGS-B needs finite values
   if( l == Inf ) l = 0.99 * .Machine$double.xmax
