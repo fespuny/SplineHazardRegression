@@ -41,7 +41,7 @@ library(SplineHazardRegression)
 ## simulate time-to-event data using true distribution
    SimDat = etsim(INPUTS)
 ## Solve ...
-   timeout = seq( 0, 10, length.out = 101 )
+   timeout = seq( 0, 10, length.out = 501 )
    # First, we calculate the best knots
    Result = hspcore(yd=SimDat, ORDER=4, Exterior.knots = c(0,10), Interior.knots=NULL, SelectBestKnots = TRUE, time=timeout, Bootstrap = 0, verbose=TRUE )
    Interior.knots = Result$Interior.knots
