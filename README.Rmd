@@ -1,9 +1,6 @@
-<<<<<<< HEAD
 ---
 output: github_document
 ---
-
-<!-- README.md is generated from README.Rmd. Please edit that file -->
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
@@ -15,9 +12,6 @@ knitr::opts_chunk$set(
 ```
 
 # SplineHazardRegression
-
-<!-- badges: start -->
-<!-- badges: end -->
 
 Survival hazards are used in regression (Cox proportional hazards models) but rarely reported or visualized in descriptive analyses, where Kaplan-Meier cumulative survival and at best Nelson-Aalen cumulative hazard are commonly used. It turns out that describing survival hazards can be very informative, allowing to spot “instantaneous” patterns that are not visible in cumulative measures of hazard and survival, which in fact can be derived from hazard functions.
 
@@ -129,135 +123,3 @@ legend(6, .99, c("True solution", "Fitted model"), lwd=1, lty=1, col=c("green","
 
 You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.
 In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
-=======
----
-output: github_document
----
-
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%"
-)
-```
-
-# SplineHazardRegression
-
-<!-- badges: start -->
-<!-- badges: end -->
-
-Survival hazards are used in regression (Cox proportional hazards models) but rarely reported or visualized in descriptive analyses, where Kaplan-Meier cumulative survival and at best Nelson-Aalen cumulative hazard are commonly used. It turns out that describing survival hazards can be very informative, allowing to spot “instantaneous” patterns that are not visible in cumulative measures of hazard and survival, which in fact can be derived from hazard functions.
-
-The primary goal of SplineHazardRegression is to make available the methods 
-for flexible estimation of hazards using (cubic) b-splines published in 
-    Philip S. Rosenberg. "Hazard Function Estimation Using B-Splines"
-    In Biometrics, Vol. 51, No. 3 (Sep., 1995), pp. 874-887
-    https://doi.org/10.2307/2532989
-The input data is time-to-event data (e.g. time to death), possibly right-censored and with late entries (both meaning that patients are followed-up for unequal times).
-
-The package also allows the flexible estimation of the cumulative hazard and cumulative survival functions, and (in progress) the computation of aggregate measures for those (average, median, interquartile range, etc). 
-
-The automatic selection of knots and bootstrap variance estimation have been implemented. 
-
-## Installation
-
-You can install the development version of SplineHazardRegression from [GitHub](https://github.com/) with:
-
-``` r
-# install.packages("devtools")
-devtools::install_github("fespuny/SplineHazardRegression")
-```
-
-## Example
-
-This is a basic example which shows you how to simulate time-to-event data and fit a hazard function, deriving then cumulative hazard and survival estimates.
-
-### Data Simulation
-
-```{r simulation}
-library(SplineHazardRegression)
-## simulation parameters
-   knots = c(0, 1, 3, 6, 10, NA, NA)
-   betac = 1 * c(0.05, 0.05, 0.05, 0.05, 0.40, 0.1, 0.05)
-   HParm = data.frame(knots, betac) # 'A Simple B-Spline'
-   cll = c(0, 5)
-   cup = c(5, 10)
-   cih = c(0.0125, 0.025)
-   CParm = data.frame(cll, cup, cih) # 'Light Censoring'
-## calculate simulation true hazard and censoring distributions
-   INPUTS = etsim_inputs( HParam=HParm, CParam=CParm, SampleSize = 301 )
-## simulate time-to-event data using true distribution
-   SimDat = etsim(INPUTS)
-## histogram of the fully observed hazard data (gray) and censored observations (light blue)
-hist( SimDat$time[ which(SimDat$status==1)], main="", xlab="t", breaks="Freedman-Diaconis", xlim=c(0,10) )
-hist( SimDat$time[ which(SimDat$status==0)], main="", xlab="t", breaks="Freedman-Diaconis", xlim=c(0,10),add=TRUE, col=rgb(173,216,230,max=255,alpha=100) )
-
-```
-
-### Hazard regression
-
-```{r regression}
-## Fit a cubic B-spline regression model using the true knots
-   # yd0= read.csv("C:/local/CORU/Survival Hazard and KM/Philip Rosenberg papers and code/matlab v1 PR/Dataset1.csv", header = F, col.names = c("time","status") )
-   # SimDat = yd0
-   timeout = seq( 0, 10, length.out = 501 )
-   # Result = hspcore(yd=SimDat, ORDER=4, knots=c(0,1,3,6,10), time=timeout, Bootstrap = 120, verbose=FALSE )   
-   Result = hspcore(yd=SimDat, ORDER=4, Exterior.knots = c(0,10), Interior.knots=NULL, SelectBestKnots = TRUE, time=timeout, Bootstrap = 200, verbose=FALSE )  
-```
-
-```{r, result-figures-side, fig.show="hold", out.width="50%", echo=FALSE}
-### COMBINED FIGURES
-plot( INPUTS$t, INPUTS$h, type="l", col="green",ylim=c(0,1.0),xlab="t",ylab="event hazard rate",bty="n")
-lines( Result$t, Result$h[,1], col="blue")
-lines( Result$t, Result$h[,2], lty="dashed", col="blue" )
-lines( Result$t, Result$h[,3], lty="dashed", col="blue" )
-abline(v=c(0,5,10), h=seq(0.0,1.0,0.2), lty=2,col="gray" )
-legend(0.01, .99, c("True solution", "Fitted model"), lwd=1, lty=1, col=c("green","blue"), bty = "n")
-
-Boundary.knots = c(0,10)
-DELTA = (Boundary.knots[2]-Boundary.knots[1])/(length(INPUTS$t)-1)
-H.true = cumsum(INPUTS$h*DELTA)
- DT = c(0, Result$t[-1]-Result$t[-length(Result$t)] ) 
-H.result  = cumsum( Result$h[,1] * DT )
-
-plot( INPUTS$t, H.true, type="l", col="green",ylim=c(0,max(cumsum( Result$h[,3] * DT ))), xlab="t",ylab="Cumulative Hazard",bty="n")
-lines( Result$t, H.result, col="blue")
-lines( Result$t, cumsum( Result$h[,2] * DT ), lty="dashed", col="blue")
-lines( Result$t, cumsum( Result$h[,3] * DT ), lty="dashed", col="blue")
-# lines( Result2$t, H.result2, col="red")
-# lines( Result2$t, cumsum( Result2$h[,2] * DT ), lty="dashed", col="red")
-# lines( Result2$t, cumsum( Result2$h[,3] * DT ), lty="dashed", col="red")
-abline(v=c(0,5,10), h=seq(0.0,2.5,0.5), lty=2,col="gray" )
-legend(0.01, .99, c("True solution", "Fitted model"), lwd=1, lty=1, col=c("green","blue"), bty = "n")
-
-plot( INPUTS$t, INPUTS$Sh, type="l", col="green", ylim=c(0,1.0),xlab="t",ylab= "Survival Probability [exp(-H)]",bty="n")
-lines( Result$t, exp( - H.result ), col="blue")
-lines( Result$t, exp( - cumsum( Result$h[,2] * DT ) ), lty="dashed", col="blue")
-lines( Result$t, exp( - cumsum( Result$h[,3] * DT ) ), lty="dashed", col="blue")
-# lines( Result2$t, exp( - H.result2 ), col="red")
-# lines( Result2$t, exp( - cumsum( Result2$h[,2] * DT ) ), lty="dashed", col="red")
-# lines( Result2$t, exp( - cumsum( Result2$h[,3] * DT ) ), lty="dashed", col="red")
-abline(v=c(0,5,10), h=seq(0.0,1.0,0.2), lty=2,col="gray" )
-legend(6, .99, c("True solution", "Fitted model"), lwd=1, lty=1, col=c("green","blue"), bty = "n")
-
-plot( INPUTS$t, INPUTS$Sh, type="l", col="green", ylim=c(0,1.0),xlab="t",ylab=" Survival Probability (Bootstrap)",bty="n")
-lines( Result$t, Result$S[,1], col="blue")
-lines( Result$t, Result$S[,2], lty="dashed", col="blue")
-lines( Result$t, Result$S[,3], lty="dashed", col="blue")
-# lines( Result2$t, Result2$S[,1], col="red")
-# lines( Result2$t, Result2$S[,2], lty="dashed", col="red")
-# lines( Result2$t, Result2$S[,3], lty="dashed", col="red")
-abline(v=c(0,5,10), h=seq(0.0,1.0,0.2), lty=2,col="gray" )
-legend(6, .99, c("True solution", "Fitted model"), lwd=1, lty=1, col=c("green","blue"), bty = "n")
-```
-
-
-## PACKAGE DEVELOPMENT NOTE
-
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
->>>>>>> 7b43e3ca7fdacde910cb8448901147ba1f4accbe
