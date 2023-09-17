@@ -91,9 +91,9 @@ hspcore <- function(yd, ORDER=4, Exterior.knots, Interior.knots=NULL, SelectBest
       m2loglik = maxL$m2loglik #this contains
       convergence[K+1,] = as.numeric( maxL$convergence )
 
-      AICc = m2loglik[1] + 2 * DOF #+ 2 * DOF * (DOF+1) / (nrow(yd)-DOF-1)
+      AICc = m2loglik[1] + 2 * DOF + 2 * DOF * (DOF+1) / (nrow(yd)-DOF-1)
 
-      print( paste0( "K=", K, ", m2loglik=", round(m2loglik[1],2), ", DOF=", DOF, ", AIC=", round(AICc,2), ", knots= ", paste0( round( knots*TMAX, 1), collapse = " "  ) ) )
+      print( paste0( "K=", K, ", m2loglik=", round(m2loglik[1],2), ", DOF=", DOF, ", AICc=", round(AICc,2), ", knots= ", paste0( round( knots*TMAX, 1), collapse = " "  ) ) )
 
       if( K==0 ){
         bestAICc = AICc #we initialise bestAICc
