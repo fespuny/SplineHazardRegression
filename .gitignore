@@ -1,5 +1,4 @@
 .Rproj.user
-.Rproj
 .Rhistory
 .RData
 .Ruserdata
@@ -8,4 +7,3 @@
 .DS_Store
 .quarto
 inst/doc
-SplineHazardRegression.Rproj
