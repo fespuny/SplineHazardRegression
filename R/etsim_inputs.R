@@ -7,6 +7,7 @@
 #' @param HParam - matrix of parameter values for outcome variable \cr
 #' @param Censor - censoring hazard ('', 'exp', 'weib', 'pe' or 'bspline')
 #' @param CParam - matrix of parameter values for censoring variable
+#' @param Tmin - scalar, minimum follow-up time, default 0
 #' @param Tmax - scalar, maximum follow-up time, default 10
 #' @param SampleSize - scalar, sample size
 #'
@@ -18,7 +19,6 @@
 #' @return Returns a list of outputs (t, basis, h, hCensor, Sh, Scensor)
 #'
 #'     t = array of times
-#'     basis = basis of b-spline cubic functions [WE NEED TO ADD ORDER/DEGREE AS PARAMETER IF WE WANT TO ALLOW DIFFERENT B-SPLINES]
 #'     h = simulated hazard distribution
 #'     hCensor = simulated censoring distribution
 #'     Sh = cumulative hazard survival function
@@ -37,45 +37,29 @@
 #'     CParm = data.frame(cll, cup, cih) # 'Light Censoring'
 #'     INPUTS = etsim_inputs( HParam=HParm, CParam=CParm )
 #'
-etsim_inputs <- function( Hazard="spline", HParam, Censor="pe", CParam, Tmax=10, SampleSize=101 ){
+etsim_inputs <- function( Hazard="spline", HParam, Censor="pe", CParam, Tmin=0, Tmax=10, SampleSize=101 ){
 
-  ##we ignore duplicated knots and assign boundary and interior knot variables
-  knots = unique( setdiff( as.numeric(HParam[,1]), c(NA, NaN) ) )
-  Boundary.knots = c(min(knots),max(knots))
-  Interior.knots = setdiff( knots, Boundary.knots )
+  if( sum( Hazard %in% c("exp","spline","pe" ), na.rm=TRUE ) ){
 
-  betac = as.numeric(HParam[,2])
-  cll = as.numeric(CParam[,1])
-  cup = as.numeric(CParam[,2])
-  cih = as.numeric(CParam[,3])
+    Hazard_etsim = etsim_inputs_core( Hazard, HParam, Tmin, Tmax, SampleSize )
 
-  t = seq(from=Boundary.knots[1],to=Boundary.knots[2],length.out=SampleSize)
-
-  B = generate_bspline_basis( time=t, Interior.knots=Interior.knots, Boundary.knots=Boundary.knots, ORDER=4 )
-
-  h = B %*% betac
-
-  # iB = ibs(x=t, knots=Interior.knots, Boundary.knots=Boundary.knots, degree=3, intercept=TRUE)
-  # Sh = exp( - iB %*% betac )
-
-  DELTA = (Boundary.knots[2]-Boundary.knots[1])/(SampleSize-1)
-
-  Sh = exp( - cumsum(h*DELTA) )
-
-  hCensor = rep( 0, SampleSize )
-  for( i in 1:length(cll) ){
-    hCensor[ t > cll[i] & t<= cup[i] ] = cih[i]
   }
 
-  Scensor = exp( - cumsum( hCensor*DELTA) )
+  #Note: censoring definition requires that time field "t" has been already defined
+  if( nchar(Censor)==0 | sum( Censor %in% c("exp","spline","pe" ), na.rm=TRUE ) ){
+
+    Censor_etsim = etsim_inputs_core( Censor, CParam, Tmin, Tmax, SampleSize )
+
+  }
 
   return(
-    list(t=t,
-         basis=B,
-         b=betac,
-         h = h,
-         hCensor=hCensor,
-         Sh = Sh,
-         Scensor=Scensor)
+    list(
+      t=Hazard_etsim$t,
+      h = Hazard_etsim$h,
+      hCensor=Censor_etsim$h,
+      Sh = Hazard_etsim$Sh,
+      Scensor=Censor_etsim$Sh
+    )
   )
+
 }

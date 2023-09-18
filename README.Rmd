@@ -11,7 +11,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# SplineHazardRegression
+# SplineHazardRegression 
 
 Survival hazards are used in regression (Cox proportional hazards models) but rarely reported or visualized in descriptive analyses, where Kaplan-Meier cumulative survival and at best Nelson-Aalen cumulative hazard are commonly used. It turns out that describing survival hazards can be very informative, allowing to spot “instantaneous” patterns that are not visible in cumulative measures of hazard and survival, which in fact can be derived from hazard functions.
 

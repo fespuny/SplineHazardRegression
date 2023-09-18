@@ -9,6 +9,7 @@ etsim_inputs(
   HParam,
   Censor = "pe",
   CParam,
+  Tmin = 0,
   Tmax = 10,
   SampleSize = 101
 )
@@ -23,6 +24,8 @@ etsim_inputs(
 
 \item{CParam}{- matrix of parameter values for censoring variable}
 
+\item{Tmin}{- scalar, minimum follow-up time, default 0}
+
 \item{Tmax}{- scalar, maximum follow-up time, default 10}
 
 \item{SampleSize}{- scalar, sample size}
@@ -31,7 +34,6 @@ etsim_inputs(
 Returns a list of outputs (t, basis, h, hCensor, Sh, Scensor)
 
     t = array of times
-    basis = basis of b-spline cubic functions [WE NEED TO ADD ORDER/DEGREE AS PARAMETER IF WE WANT TO ALLOW DIFFERENT B-SPLINES]
     h = simulated hazard distribution
     hCensor = simulated censoring distribution
     Sh = cumulative hazard survival function

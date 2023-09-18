@@ -3,6 +3,7 @@
 export(bspline_regression_basis_functions)
 export(etsim)
 export(etsim_inputs)
+export(etsim_inputs_core)
 export(generate_bspline_basis)
 export(hazl_ker)
 export(hspcore)
