@@ -67,31 +67,29 @@ hist( SimDat$time[ which(SimDat$status==0)], main="", xlab="t", breaks="Freedman
 ### Hazard regression
 
 ``` r
-## Fit a cubic B-spline regression model using the true knots
-   # yd0= read.csv("C:/local/CORU/Survival Hazard and KM/Philip Rosenberg papers and code/matlab v1 PR/Dataset1.csv", header = F, col.names = c("time","status") )
-   # SimDat = yd0
+## Fit a cubic B-spline regression searching for the best number of knots
    timeout = seq( 0, 10, length.out = 501 )
-   # Result = hspcore(yd=SimDat, ORDER=4, knots=c(0,1,3,6,10), time=timeout, Bootstrap = 120, verbose=FALSE )   
    Result = hspcore(yd=SimDat, ORDER=4, Exterior.knots = c(0,10), Interior.knots=NULL, SelectBestKnots = TRUE, time=timeout, Bootstrap = 200, verbose=FALSE )  
 #> [1] "Automatic search for K the number of interior knots of the B-spline hazard function"
-#> [1] "K=0, m2loglik=293.04, DOF=4, AICc=301.17, knots= 0 10"
-#> [1] "K=1, m2loglik=290.52, DOF=5, AICc=300.73, knots= 0 4.8 10"
-#> [1] "K=2, m2loglik=287.94, DOF=6, AICc=300.23, knots= 0 3.8 5.7 10"
-#> [1] "K=3, m2loglik=286.12, DOF=7, AICc=300.5, knots= 0 3.1 4.8 6.4 10"
-#> [1] "K=4, m2loglik=285.62, DOF=8, AICc=302.12, knots= 0 2.5 4.2 5.5 6.7 10"
-#> [1] "K=5, m2loglik=285.12, DOF=9, AICc=303.74, knots= 0 2.1 3.8 4.8 5.7 6.9 10"
-#> [1] "K=6, m2loglik=284.82, DOF=10, AICc=305.58, knots= 0 1.6 3.6 4.3 5.2 6.1 7.3 10"
-#> [1] "K=7, m2loglik=284.56, DOF=11, AICc=307.47, knots= 0 1.4 3.1 4 4.8 5.6 6.4 7.4 10"
-#> [1] "K=8, m2loglik=284.59, DOF=12, AICc=309.68, knots= 0 1.2 2.8 3.8 4.6 5.1 5.7 6.6 7.6 10"
-#> [1] "K=9, m2loglik=284.46, DOF=13, AICc=311.72, knots= 0 1.2 2.5 3.7 4.2 4.8 5.5 5.9 6.7 7.8 10"
-#> [1] "K=10, m2loglik=283.64, DOF=14, AICc=313.1, knots= 0 1 2.4 3.4 4 4.7 5.1 5.6 6.2 6.8 7.8 10"
-#> [1] "K=11, m2loglik=284.06, DOF=15, AICc=315.74, knots= 0 0.9 2.1 3.1 3.8 4.3 4.8 5.3 5.7 6.4 6.9 7.8 10"
-#> [1] "K=12, m2loglik=283.47, DOF=16, AICc=317.39, knots= 0 0.8 1.7 3 3.7 4.1 4.7 5.1 5.5 5.9 6.5 7.1 7.9 10"
-#> [1] "K=13, m2loglik=278.61, DOF=17, AICc=314.77, knots= 0 0.7 1.6 2.6 3.6 3.9 4.3 4.8 5.2 5.7 6.1 6.7 7.3 8 10"
-#> [1] "K=14, m2loglik=282.34, DOF=18, AICc=320.77, knots= 0 0.7 1.4 2.5 3.3 3.8 4.2 4.7 5 5.5 5.7 6.2 6.7 7.4 8 10"
+#> [1] "K=0, m2loglik=245.13, DOF=4, AICc=253.26, knots= 0 10"
+#> [1] "K=1, m2loglik=237.52, DOF=5, AICc=247.72, knots= 0 5.2 10"
+#> [1] "K=2, m2loglik=234.52, DOF=6, AICc=246.81, knots= 0 4.2 6.2 10"
+#> [1] "K=3, m2loglik=233.71, DOF=7, AICc=248.09, knots= 0 3.6 5.2 6.7 10"
+#> [1] "K=4, m2loglik=231.09, DOF=8, AICc=247.58, knots= 0 3.1 4.6 5.7 6.9 10"
+#> [1] "K=5, m2loglik=230.39, DOF=9, AICc=249.01, knots= 0 2.5 4.2 5.2 6.2 7.1 10"
+#> [1] "K=6, m2loglik=230.33, DOF=10, AICc=251.08, knots= 0 2.1 3.8 4.7 5.5 6.5 7.4 10"
+#> [1] "K=7, m2loglik=229.83, DOF=11, AICc=252.75, knots= 0 1.8 3.6 4.4 5.2 5.9 6.7 7.5 10"
+#> [1] "K=8, m2loglik=228.1, DOF=12, AICc=253.19, knots= 0 1.8 3.4 4.2 4.8 5.5 6.2 6.9 7.6 10"
+#> [1] "K=9, m2loglik=228.89, DOF=13, AICc=256.16, knots= 0 1.4 3.1 3.9 4.6 5.2 5.7 6.4 6.9 7.7 10"
+#> [1] "K=10, m2loglik=227.26, DOF=14, AICc=256.73, knots= 0 1.3 2.9 3.7 4.3 4.8 5.5 5.9 6.6 7 7.9 10"
+#> [1] "K=11, m2loglik=225.21, DOF=15, AICc=256.9, knots= 0 1.2 2.5 3.6 4.2 4.6 5.2 5.5 6.2 6.7 7.1 8 10"
+#> [1] "K=12, m2loglik=225.21, DOF=16, AICc=259.13, knots= 0 1.2 2.2 3.5 4 4.4 4.9 5.4 5.8 6.4 6.8 7.3 8 10"
+#> [1] "K=13, m2loglik=221.54, DOF=17, AICc=257.7, knots= 0 1 2.1 3.3 3.8 4.3 4.7 5.2 5.5 6 6.5 6.9 7.4 8.1 10"
+#> [1] "K=14, m2loglik=221.74, DOF=18, AICc=260.17, knots= 0 0.8 2 3.1 3.7 4.2 4.6 4.9 5.4 5.7 6.2 6.6 6.9 7.4 8.1 10"
 #> [1] "SEARCH RESULT: We use 2 interior B-spline knots"
-#> [1] "K= 2 DOF= 6 knots= 0 3.8 5.7 10"
+#> [1] "K= 2 DOF= 6 knots= 0 4.2 6.2 10"
 #> [1] "Variance estimation using bootstrap"
+#> Warning in log(aux): NaNs produced
 ```
 
 <img src="man/figures/README-result-figures-side-1.png" width="50%" /><img src="man/figures/README-result-figures-side-2.png" width="50%" /><img src="man/figures/README-result-figures-side-3.png" width="50%" /><img src="man/figures/README-result-figures-side-4.png" width="50%" />

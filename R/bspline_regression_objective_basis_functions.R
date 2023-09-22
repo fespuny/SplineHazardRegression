@@ -13,7 +13,6 @@
 #' where \eqn{B(t)} is a basis of B-splines and \eqn{\alpha} are the coefficients to be estimated,
 #' we optimise a function of the likelihood \deqn{L(h(\theta)) =  }.
 #'
-#' @importFrom pracma zeros ones tril kron
 #' @export
 #'
 bspline_regression_basis_functions <- function(tin, ORDER, knots, t ){
@@ -32,7 +31,7 @@ bspline_regression_basis_functions <- function(tin, ORDER, knots, t ){
     p = length(Interior.knots)+ORDER     # Number of actual parameters (DOF)
 
     # Basis functions for h
-    Wik = NaN*zeros(n, p )
+    Wik = NaN*matrix(0,n, p )
     if( length(inc) ){
       Wik[si[inc], ] =
 #        bSpline( x=sx[inc], knots=Interior.knots, Boundary.knots=Boundary.knots, degree=(ORDER-1), intercept=TRUE)
@@ -40,18 +39,25 @@ bspline_regression_basis_functions <- function(tin, ORDER, knots, t ){
     }
 
     # Basis functions for the definite integral of h
-    # * Lower limit of integration is the left endpoint of the basic interval
-    # * This code is based on spcol and De Boor, PGS, p. 150-151.
-    knots_with_multiplicity = c( rep(Boundary.knots[1],ORDER), Interior.knots, rep(Boundary.knots[2],ORDER) )
-    scl = (knots_with_multiplicity[(ORDER+1):(ORDER+p)] - knots_with_multiplicity[1:p])/ORDER
-    z = (tril(kron(1:p*ones(1,p), ones(p,1))) > 0) * (ones(p,1)%*%scl)
-    Zik = NaN*zeros(n,p)
-    if( length(inc) ){
-      Zik[ si[inc], ] =
-        # bSpline( x=sx[inc], knots=Interior.knots, Boundary.knots=Boundary.knots, degree=ORDER, intercept=TRUE)[,-1]
-        generate_bspline_basis( time=sx[inc], Interior.knots, Boundary.knots, (ORDER+1) )[,-1]
+    Zik = NaN*matrix(0,n,p)
+    if( length(inc) ) {
+      Zik[ si[inc], ] = generate_bspline_basis( time=sx[inc], Interior.knots, Boundary.knots, ORDER, integral=TRUE )
     }
-    Zik = Zik%*%z
+    # if( 0 ){ ##comparison to the De Boor method (this required the pracma package)
+    #   # * Lower limit of integration is the left endpoint of the basic interval
+    #   # * This code is based on spcol and De Boor, PGS, p. 150-151.
+    #   knots_with_multiplicity = c( rep(Boundary.knots[1],ORDER), Interior.knots, rep(Boundary.knots[2],ORDER) )
+    #   scl = (knots_with_multiplicity[(ORDER+1):(ORDER+p)] - knots_with_multiplicity[1:p])/ORDER
+    #   z = (pracma::tril(pracma::kron(1:p*matrix(1,1,p), matrix(1,p,1))) > 0) * (matrix(1,p,1)%*%scl)
+    #   Zik_DB = NaN*matrix(0,n,p)
+    #   if( length(inc) ){
+    #     Zik_DB[ si[inc], ] =
+    #       # bSpline( x=sx[inc], knots=Interior.knots, Boundary.knots=Boundary.knots, degree=ORDER, intercept=TRUE)[,-1]
+    #       generate_bspline_basis( time=sx[inc], Interior.knots, Boundary.knots, (ORDER+1) )[,-1]
+    #   }
+    #   Zik_DB = Zik_DB%*%z
+    #   print( paste0( "Relative difference between integral basis methods: ", sum( abs(Zik - Zik_DB) / sum(abs(Zik_DB)) ) ) )
+    # }
 
     # Basis functions for our vector of evaluation points t - hazard
     x = as.numeric( t )
@@ -59,7 +65,7 @@ bspline_regression_basis_functions <- function(tin, ORDER, knots, t ){
     si = order(x)
     inc = which(!is.na(sx))
     n = length(x)
-    Xh = NaN*zeros(n,p)
+    Xh = NaN*matrix(0,n,p)
 
     if( !length(inc) ){
       print( "ERROR : You have no data to analyze" ) ###//HERE HERE HERE
@@ -69,11 +75,22 @@ bspline_regression_basis_functions <- function(tin, ORDER, knots, t ){
     generate_bspline_basis( time=sx[inc], Interior.knots, Boundary.knots, ORDER )
 
     # Basis functions t - define integral
-    XH = NaN*zeros(n,p);
+    XH = NaN*matrix(0,n,p);
     XH[si[inc],] =
-      # bSpline( x=sx[inc], knots=Interior.knots, Boundary.knots=Boundary.knots, degree=ORDER, intercept=TRUE)[,-1]
-    generate_bspline_basis( time=sx[inc], Interior.knots, Boundary.knots, (ORDER+1) )[,-1]
-    XH = XH%*%z;
+      generate_bspline_basis( time=sx[inc], Interior.knots, Boundary.knots, ORDER, integral=TRUE )
+
+    # if( 0 ){ ##comparison to the De Boor method (this required the pracma package)
+    #   # # * This code is based on spcol and De Boor, PGS, p. 150-151.
+    #   knots_with_multiplicity = c( rep(Boundary.knots[1],ORDER), Interior.knots, rep(Boundary.knots[2],ORDER) )
+    #   scl = (knots_with_multiplicity[(ORDER+1):(ORDER+p)] - knots_with_multiplicity[1:p])/ORDER
+    #   z = (tril(kron(1:p*matrix(1,1,p), matrix(1,p,1))) > 0) * (matrix(1,p,1)%*%scl)
+    #   XH_DB = NaN*matrix(0,n,p);
+    #   XH_DB[si[inc],] =
+    #     generate_bspline_basis( time=sx[inc], Interior.knots, Boundary.knots, (ORDER+1) )[,-1]
+    #   XH_DB = XH_DB%*%z;
+    #
+    #   print( paste0( "Relative difference between integral basis methods: ", sum( abs(XH - XH_DB) ) / sum(abs(XH_DB)) ) )
+    # }
 
     return( list(
       Wik = Wik,

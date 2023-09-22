@@ -8,7 +8,6 @@
 #' @param Zik - matrix that multiplied by par.alpha gives the cumulative hazard function
 #'
 #' @return dl - gradient of the objective function
-#' @importFrom pracma ones
 #' @export
 #'
 srllikb_grad = function(par.alpha, yd, Wik, Zik){
@@ -17,7 +16,7 @@ srllikb_grad = function(par.alpha, yd, Wik, Zik){
   np = length( alphaT )
 
   h = Wik %*% alphaT
-  t1 = (yd[,2]/h) %*% ones(1, np)
+  t1 = (yd[,2]/h) %*% matrix(1, 1, np)
   t1 = Wik*t1
 
   score = colSums(t1 - Zik, na.rm = T )

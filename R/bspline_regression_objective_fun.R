@@ -19,7 +19,7 @@ srllikb_fun = function(par.alpha, yd, Wik, Zik){
   logWikalpha = log( aux )
 
   if( sum( aux<=0 ) > 0 ){
-    logWikalpha = Inf*zeros( nrow(aux), ncol(aux) )
+    logWikalpha = Inf*matrix( 0, nrow(aux), ncol(aux) )
   }
 
   l = -2*sum( yd[, 2] * logWikalpha - Zik%*%alphaT )

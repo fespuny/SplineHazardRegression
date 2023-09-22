@@ -10,8 +10,8 @@
 #'
 #' @return list(alpha1,h,S,m2loglik) - alpha1 is the new solution;
 #' using alpha1, the function also calculates the hazard (h), survival (S) and objective function and gradient (m2loglik) ;
-#' @importFrom stats optim nlminb
-#' @importFrom pracma eye
+#' @importFrom stats optim nlminb constrOptim
+#' @importFrom nloptr bobyqa
 #' @export
 #'
 hazl_ker = function(yd, alpha0, Wik, Zik, Xh, XH, verbose=FALSE ){
@@ -61,8 +61,8 @@ hazl_ker = function(yd, alpha0, Wik, Zik, Xh, XH, verbose=FALSE ){
   ## Adaptative barrier algorithm using BFGS as optimization method (Nelder-Mead did not find a solution to trouble problems)
   output_optim3 <- list( par=alpha0, convergence=-1, value = srllikb_fun(alpha0, yd, Wik, Zik), message="" )
   tryCatch({
-    output_optim3 =stats::constrOptim( theta = as.numeric(alpha0), f = applyDefaults(srllikb_fun,yd=yd,Wik=Wik,Zik=Zik), grad=applyDefaults(srllikb_grad,yd=yd,Wik=Wik,Zik=Zik),
-                                       ui=eye(p), ci=rep(0,p), control = list(fnscale = 1) )
+    output_optim3 =constrOptim( theta = as.numeric(alpha0), f = applyDefaults(srllikb_fun,yd=yd,Wik=Wik,Zik=Zik), grad=applyDefaults(srllikb_grad,yd=yd,Wik=Wik,Zik=Zik),
+                                       ui=diag(p), ci=rep(0,p), control = list(fnscale = 1) )
   }, error= function(e){ output_optim3$message <<- conditionMessage(e) } )
   convergence[3] = output_optim3$convergence
   if( output_optim3$convergence == 0 ){
@@ -80,7 +80,7 @@ hazl_ker = function(yd, alpha0, Wik, Zik, Xh, XH, verbose=FALSE ){
   output_optim4 <- list( par = alpha0, convergence=-1, value = srllikb_fun(alpha0, yd, Wik, Zik), message="" )
 
   tryCatch({
-    output_optim4 =nloptr::bobyqa( x0 = as.numeric(alpha0), fn = applyDefaults(srllikb_fun,yd=yd,Wik=Wik,Zik=Zik), lower=rep(0,p) )
+    output_optim4 =bobyqa( x0 = as.numeric(alpha0), fn = applyDefaults(srllikb_fun,yd=yd,Wik=Wik,Zik=Zik), lower=rep(0,p) )
   }, error= function(e){ output_optim4$message <<- conditionMessage(e) } )
   convergence[4] = output_optim4$convergence
   if( output_optim4$convergence > 0 ){ #the previous algorithms did possibly converge, so is this a better estimate?
