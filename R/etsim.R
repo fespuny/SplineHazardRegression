@@ -11,8 +11,7 @@
 #' @return Returns a data frame of outputs (time, status)
 #'     time = array of times to event
 #'     status = 0 if alive at time t, 1 otherwise
-#' @importFrom stats runif
-#' @importFrom pracma interp1
+#' @importFrom stats runif approx
 #' @export
 #'
 #' @examples
@@ -41,7 +40,7 @@ etsim <- function( INPUTS ){
   unif   = runif( n=length(INPUTS$t), min=0, max=1 )
   time = rep( NA, length(unif) ) ##time will be censored if outside the observation domain
   sel = which( unif >= min(unif_x) & unif <= max(unif_x) )
-  time[sel]   = interp1( unif_x, unif_y, unif[sel], method="linear" )
+  time[sel]   = approx( unif_x, unif_y, unif[sel], method="linear", na.rm=FALSE )$y  ##replaces old pracma::interp1
 
   ## Simulate censoring time
   unif_x = INPUTS$Scensor[ order(INPUTS$Scensor) ]
@@ -52,7 +51,7 @@ etsim <- function( INPUTS ){
   unif   = runif( n=length(INPUTS$t), min=0, max=1 )
   timeCensor = rep( NA, length(unif) )
   sel = which( unif >= min(unif_x) & unif <= max(unif_x) )
-  timeCensor[sel]   = interp1( unif_x, unif_y, unif[sel], method="linear" )
+  timeCensor[sel]   = approx( unif_x, unif_y, unif[sel], method="linear", na.rm=FALSE )$y  ##replaces old pracma::interp1
 
   ## Simulate the observed time and status
   y0 = pmin( time, timeCensor, na.rm = TRUE)

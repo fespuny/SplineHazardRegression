@@ -4,7 +4,13 @@
 \alias{generate_bspline_basis}
 \title{Generate B-Spline basis}
 \usage{
-generate_bspline_basis(time, Interior.knots, Boundary.knots, ORDER = 4)
+generate_bspline_basis(
+  time,
+  Interior.knots,
+  Boundary.knots,
+  ORDER = 4,
+  integral = FALSE
+)
 }
 \arguments{
 \item{time}{- x coordinates for the B-spline functions}
@@ -14,6 +20,8 @@ generate_bspline_basis(time, Interior.knots, Boundary.knots, ORDER = 4)
 \item{Boundary.knots}{- boundary knots of the B-spline basis}
 
 \item{ORDER}{- 1 step, 2 linear, 3 quadratic, 4 cubic}
+
+\item{integral}{- TRUE only if you want the integrals of a B-spline basis}
 }
 \value{
 B - matrix of basis of b-pline functions of the specified degree, evaluated at the "time" points
@@ -24,6 +32,8 @@ Wraper function to a B-spline basis calculation function in R (currently from pa
 }
 \details{
 The current bSpline() function from the splines2 package extends the bs() function in the splines package for B-spline basis by allowing piecewise constant (left-closed and right-open except on the right boundary) spline basis of degree zero.
+
+See the function splines2::bspline for further details
 }
 \examples{
 # A basis of cubic B-splines with no interior points

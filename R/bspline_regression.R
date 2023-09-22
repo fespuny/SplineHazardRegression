@@ -14,7 +14,6 @@
 #' @param verbose - boolean; if TRUE, the convergence of the two used optimisation routines is reported during bootstrap estimation of variance
 #'
 #' @return list(alpha1,t,h,m2loglik,hb) - the optimal coefficients alpha1, the time variable, the optimal hazard, the objective function value and gradient, and the bootstrap hazards if any
-#' @importFrom pracma zeros ceil
 #' @importFrom stats runif quantile
 #'
 #' @details See \doi{<doi.org/10.2307/2532989>} the original paper by Philip S. Rosenberg.
@@ -53,7 +52,7 @@ hspcore <- function(yd, ORDER=4, Exterior.knots, Interior.knots=NULL, SelectBest
 
     nKs = 15
 
-    convergence = zeros(nKs, 5);
+    convergence = matrix(0,nKs,5) ##zeros(nKs, 5);
 
     for( K in 0:(nKs-1) ){
 
@@ -63,7 +62,8 @@ hspcore <- function(yd, ORDER=4, Exterior.knots, Interior.knots=NULL, SelectBest
       if( K >0 ){
         ## interior knots using K percentiles for the event times
         #Interior.knots = eventtimes[ round( seq( nevents/(K+1), nevents/(K+1) * K , nevents/(K+1) ) ) ]
-        Interior.knots = interp1( 1:nevents, eventtimes, seq( nevents/(K+1), nevents/(K+1) * K , nevents/(K+1) ), method="linear" )
+        #Interior.knots = interp1( 1:nevents, eventtimes, seq( nevents/(K+1), nevents/(K+1) * K , nevents/(K+1) ), method="linear" )
+        Interior.knots = approx( 1:nevents, eventtimes, seq( nevents/(K+1), nevents/(K+1) * K , nevents/(K+1) ), method="linear" , na.rm=FALSE )$y  ##replaces old pracma::interp1
 
         knots = c( Exterior.knots[1], Interior.knots, Exterior.knots[2] )
       } else {
@@ -79,7 +79,7 @@ hspcore <- function(yd, ORDER=4, Exterior.knots, Interior.knots=NULL, SelectBest
       XH  = basis_functions$XH
 
       ## Initial guess for the coefficients
-      alpha0 = (sum(yd[,2])/sum(yd[,1]))*ones(1, ncol(Wik))
+      alpha0 = (sum(yd[,2])/sum(yd[,1]))*matrix(1,1, ncol(Wik))
 
       ## Maximize the likelihood function by minimising the objective = -2*logLikekihood
       maxL = hazl_ker(yd, alpha0, Wik, Zik, Xh, XH )
@@ -110,7 +110,7 @@ hspcore <- function(yd, ORDER=4, Exterior.knots, Interior.knots=NULL, SelectBest
 
     ## final knots
     if( bestK >0 ){
-      Interior.knots = interp1( 1:nevents, eventtimes, seq( nevents/(bestK+1), nevents/(bestK+1) * bestK , nevents/(bestK+1) ), method="linear" )
+      Interior.knots = approx( 1:nevents, eventtimes, seq( nevents/(bestK+1), nevents/(bestK+1) * bestK , nevents/(bestK+1) ), method="linear" , na.rm=FALSE )$y  ##replaces old pracma::interp1
     } else {
       Interior.knots = c()
     }
@@ -130,7 +130,7 @@ hspcore <- function(yd, ORDER=4, Exterior.knots, Interior.knots=NULL, SelectBest
     XH  = basis_functions$XH
 
     ## Initial guess for the coefficients
-    alpha0 = (sum(yd[,2])/sum(yd[,1]))*ones(1, ncol(Wik))
+    alpha0 = (sum(yd[,2])/sum(yd[,1]))*matrix(1,1, ncol(Wik))
 
     ## Maximize the likelihood function by minimising the objective = -2*logLikekihood
     maxL = hazl_ker(yd, alpha0, Wik, Zik, Xh, XH )
@@ -147,20 +147,19 @@ hspcore <- function(yd, ORDER=4, Exterior.knots, Interior.knots=NULL, SelectBest
   # We are just sampling with replacement
   print( "Variance estimation using bootstrap" )
 
-    hb = zeros(length(t),  Bootstrap);
-    Sb = zeros(length(t), Bootstrap);
-    alphab = zeros(Bootstrap, length(alpha1));
-    m2loglikb = zeros(Bootstrap, 1);
-    convergence = zeros(Bootstrap, 5);
+    hb = matrix(0, length(t), Bootstrap) ##zeros(length(t),  Bootstrap);
+    Sb = matrix(0, length(t), Bootstrap) ##zeros(length(t), Bootstrap);
+    alphab = matrix(0,Bootstrap, length(alpha1)) ##zeros(Bootstrap, length(alpha1));
+    m2loglikb = matrix(0,Bootstrap, 1) ##zeros(Bootstrap, 1);
+    convergence = matrix(0,Bootstrap, 5) ##zeros(Bootstrap, 5);
 
     for( i in 1:Bootstrap ){
 
-      #i_b = unique( ceil( runif( n=length(t), min=0, max=nrow(yd) ) ) )
-      i_b = ceil( runif( n=length(t), min=0, max=nrow(yd) ) )
+      i_b = ceiling( runif( n=length(t), min=0, max=nrow(yd) ) )
       yd0 = yd[i_b,]
       Wik0 = Wik[i_b, ]
       Zik0 = Zik[i_b, ]
-      alpha0i = (sum(yd0[,2])/sum(yd0[,1]))*ones(1, ncol(Wik0))
+      alpha0i = (sum(yd0[,2])/sum(yd0[,1]))*matrix(1,1, ncol(Wik0))
       maxLbi = hazl_ker( yd0, alpha0i, Wik0, Zik0, Xh, XH, verbose );
 
       alphab[i,] = maxLbi$alpha1
