@@ -31,7 +31,7 @@ Returns a list of outputs (t, h, Sh )
     Sh = cumulative hazard survival function
 }
 \description{
-Generates hazard and censoring distributions and respective survival functions [IS IT OK TO IGNORE LATE ENTRY AT THIS STAGE?]
+This function is called by etsim_inputs(). It generates hazard and censoring distributions and respective survival functions [IS IT OK TO IGNORE LATE ENTRY AT THIS STAGE?]
 }
 \details{
 For 'exp', Parm contains a scalar;

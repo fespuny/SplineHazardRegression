@@ -8,7 +8,7 @@ etsim_inputs(
   Hazard = "spline",
   HParam,
   Censor = "pe",
-  CParam,
+  CParam = NULL,
   Tmin = 0,
   Tmax = 10,
   SampleSize = 101
@@ -20,7 +20,7 @@ etsim_inputs(
 
 \item{HParam}{- matrix of parameter values for outcome variable \cr}
 
-\item{Censor}{- censoring hazard ('', 'exp', 'weib', 'pe' or 'bspline')}
+\item{Censor}{- censoring hazard ('', 'exp', 'weib', 'pe' or 'spline')}
 
 \item{CParam}{- matrix of parameter values for censoring variable}
 

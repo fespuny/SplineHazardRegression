@@ -58,7 +58,6 @@ library(SplineHazardRegression)
 ## histogram of the fully observed hazard data (gray) and censored observations (light blue)
 hist( SimDat$time[ which(SimDat$status==1)], main="", xlab="t", breaks="Freedman-Diaconis", xlim=c(0,10) )
 hist( SimDat$time[ which(SimDat$status==0)], main="", xlab="t", breaks="Freedman-Diaconis", xlim=c(0,10),add=TRUE, col=rgb(173,216,230,max=255,alpha=100) )
-
 ```
 
 ### Hazard regression

@@ -1,6 +1,6 @@
 #' Core function used to simulate hazard and censoring distributions
 #'
-#' @description Generates hazard and censoring distributions and respective survival functions [IS IT OK TO IGNORE LATE ENTRY AT THIS STAGE?]
+#' @description This function is called by etsim_inputs(). It generates hazard and censoring distributions and respective survival functions [IS IT OK TO IGNORE LATE ENTRY AT THIS STAGE?]
 #'
 #' @param Hazard_type - hazard function for outcome variable.
 #'        'exp' for exponential, 'weib' for Weibull, 'pe' for piecewise-exponential, or 'spline' for B-Spline
