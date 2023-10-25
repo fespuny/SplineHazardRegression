@@ -202,6 +202,7 @@ hspcore <- function(yd, ORDER=4, Exterior.knots, Interior.knots=NULL, SelectBest
     alphab = c();
     hb = c();
     Sb=c()
+    convergence=c()
   }
 
   # rescale the hazard values and coefficients
