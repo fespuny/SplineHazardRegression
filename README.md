@@ -1,5 +1,6 @@
-
 # SplineHazardRegression
+
+**Ferran Espuny Pujol,  Philip S. Rosenberg**
 
 Survival hazards are used in regression (Cox proportional hazards
 models) but rarely reported or visualized in descriptive analyses, where
