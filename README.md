@@ -1,4 +1,4 @@
-# SplineHazardRegression
+# Spline Hazard Regression
 
 **Ferran Espuny Pujol,  Philip S. Rosenberg**
 
